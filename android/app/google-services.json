@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "754943697287",
+    "project_id": "grupoazul20211-4a464",
+    "storage_bucket": "grupoazul20211-4a464.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:754943697287:android:c8bee564660a30d4997322",
+        "android_client_info": {
+          "package_name": "br.uff.ic.dm.grupoazul20211"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "754943697287-rsok55lj4s1d10507cemg5h21gb5n40g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVuUoq0E6348w12sTNccuPeW6oBUSOqD4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "754943697287-rsok55lj4s1d10507cemg5h21gb5n40g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

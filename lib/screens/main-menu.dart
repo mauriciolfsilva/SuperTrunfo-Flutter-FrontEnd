@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class MainMenu extends StatefulWidget {
@@ -69,6 +70,10 @@ class _MainMenuState extends State<MainMenu> {
                     child: ElevatedButton(
                       onPressed: () {
                         setState(() {
+                          var db = FirebaseFirestore.instance;
+                          db.collection("usuarios").add({
+                            "nome": playerName,
+                          });
                           showInput = !showInput;
                         });
                       },
