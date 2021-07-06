@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 
 import './screens/main-menu.dart';
 
+// Inicia o app como um todo
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Inicia o Firebase
   await Firebase.initializeApp();
   runApp(MyApp());
 }
