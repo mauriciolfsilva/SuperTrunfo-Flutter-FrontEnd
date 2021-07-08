@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:grupoazul20211/route/route.dart' as router;
 
 //classe que extende estados que serão usados para manipular as informações
 //na tela.
@@ -8,8 +10,46 @@ class MainMenu extends StatefulWidget {
 }
 
 class _MainMenuState extends State<MainMenu> {
+  bool _obscureText = true;
   String playerName, playerPassword, playerEmail, playerId;
   String screenController = 'Home';
+
+  Future<bool> usernameValidation() async {
+    var db = FirebaseFirestore.instance;
+    DocumentSnapshot foundedUser =
+        await db.collection('usuarios').doc(playerName).get();
+    return foundedUser.data() == null
+        ? Future<bool>.value(true)
+        : Future<bool>.value(false);
+  }
+
+  void signInNewUser() async {
+    var db = FirebaseFirestore.instance;
+    var validNewUser = await usernameValidation();
+    if (validNewUser) {
+      db.collection('usuarios').doc(playerName).set({
+        "usuario": playerName,
+        "senha": playerPassword,
+      });
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: new Text('Cadastro'),
+              content: new Text('Usuario cadastrado com sucesso'),
+            );
+          });
+    } else {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: new Text('Cadastro'),
+              content: new Text('Erro ao cadastrar usuario já existe'),
+            );
+          });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +100,9 @@ class _MainMenuState extends State<MainMenu> {
                         primary: Colors.white,
                       ),
                       child: TextFormField(
+                        validator: (val) => val.length < 4
+                            ? 'Nome de usuario muito curto.'
+                            : null,
                         onChanged: (value) {
                           if (value.length > 0) {
                             playerName = value;
@@ -90,9 +133,12 @@ class _MainMenuState extends State<MainMenu> {
                           primary: Colors.white,
                         ),
                         child: TextFormField(
+                          obscureText: _obscureText,
+                          validator: (val) =>
+                              val.length < 4 ? 'Senha muito curta.' : null,
                           onChanged: (value) {
                             if (value.length > 0) {
-                              playerName = value;
+                              playerPassword = value;
                             }
                           },
                           decoration: InputDecoration(
@@ -113,6 +159,7 @@ class _MainMenuState extends State<MainMenu> {
                           //   "nome": playerName,
                           // });
                         });
+                        Navigator.pushNamed(context, router.userMenuPage);
                       },
                       style: ElevatedButton.styleFrom(
                         primary: Colors.deepPurpleAccent,
@@ -132,7 +179,11 @@ class _MainMenuState extends State<MainMenu> {
                     child: ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          screenController = 'Cadastrar';
+                          if (screenController == 'Cadastrar') {
+                            signInNewUser();
+                          } else {
+                            screenController = 'Cadastrar';
+                          }
                           // var db = FirebaseFirestore.instance;
                           // db.collection("usuarios").add({
                           //   "nome": playerName,

@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
-import './screens/main-menu.dart';
+import 'package:grupoazul20211/route/route.dart' as router;
 
 // Inicia o app como um todo
 void main() async {
@@ -21,7 +20,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MainMenu(),
+      onGenerateRoute: router.controller,
+      initialRoute: router.mainMenuPage,
     );
   }
 }
