@@ -30,6 +30,7 @@ class _MainMenuState extends State<MainMenu> {
       db.collection('usuarios').doc(playerName).set({
         "usuario": playerName,
         "senha": playerPassword,
+        "estado": "indisponivel",
       });
       showDialog(
           context: context,
@@ -162,7 +163,9 @@ class _MainMenuState extends State<MainMenu> {
                               //   "nome": playerName,
                               // });
                             });
-                            Navigator.pushNamed(context, router.userMenuPage);
+                            Navigator.pushReplacementNamed(
+                                context, router.userMenuPage,
+                                arguments: {'playerName': playerName});
                           },
                           style: ElevatedButton.styleFrom(
                             primary: Colors.deepPurpleAccent,

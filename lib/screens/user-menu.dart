@@ -1,11 +1,91 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:grupoazul20211/route/route.dart' as router;
 
 class UserMenu extends StatelessWidget {
+  Future<bool> anyGameWaitingToStart() async {
+    var db = FirebaseFirestore.instance;
+    var foundedGame =
+        await db.collection('partidas').where('jogador2', isNull: true).get();
+    if (foundedGame.docs.length > 0) {
+      return Future<bool>.value(true);
+    } else {
+      return Future<bool>.value(false);
+    }
+  }
+
+  void startNewGame(String playerName, BuildContext context) async {
+    if (await anyGameWaitingToStart()) {
+      //achar partida
+      signInMatch(playerName, context);
+    } else {
+      //criar partida
+      createNewGame(playerName, context);
+    }
+  }
+
+  void waitingForPlayer(
+      String playerName, String gameId, BuildContext context) {
+    var db = FirebaseFirestore.instance;
+
+    db.collection('partidas').doc(gameId).snapshots().listen((result) {
+      if (result.data()['jogador2'] != null) {
+        //irPara a partida
+        sendToGame(context, gameId);
+      }
+    });
+  }
+
+  sendToGame(BuildContext context, String gameId) {
+    Navigator.pushReplacementNamed(context, router.gamePage,
+        arguments: {'gameId': gameId});
+  }
+
+  void signInMatch(String playerName, BuildContext context) async {
+    var db = FirebaseFirestore.instance;
+    var foundedGame =
+        await db.collection('partidas').where('jogador2', isNull: true).get();
+    if (foundedGame.docs.length > 0) {
+      var gameId = foundedGame.docs[0].id;
+
+      db.collection('partidas').doc(gameId).update({
+        "jogador2": playerName,
+      });
+      sendToGame(context, gameId);
+    }
+  }
+
+  void createNewGame(String playerName, BuildContext context) async {
+    var db = FirebaseFirestore.instance;
+    db.collection('partidas').doc().set({
+      "jogador1": playerName,
+      "jogador2": null,
+    });
+
+    var gameIdQuery =
+        await db.collection('partidas').where('jogador2', isNull: true).get();
+    ;
+
+    waitingForPlayer(playerName, gameIdQuery.docs[0].id, context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final arguments = ModalRoute.of(context).settings.arguments as Map;
+
+    startNewGame(arguments['playerName'], context);
+
+    CollectionReference reference =
+        FirebaseFirestore.instance.collection('usuarios');
+    reference.snapshots().listen((querySnapshot) {
+      querySnapshot.docChanges.forEach((docChange) {
+        arguments['playerName'] = 'teste';
+      });
+    });
+
     return Scaffold(
         appBar: AppBar(
-          title: Text('Menu de Salas'),
+          title: Text(arguments['playerName']),
           backgroundColor: Colors.orange,
         ),
         resizeToAvoidBottomInset: true,
@@ -22,18 +102,9 @@ class UserMenu extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            buttonWidget('Criar Sala'),
-                            buttonWidget('Entrar'),
-                          ])),
                   salasBoxesWidget(),
-                  salasBoxesWidget(),
-                  salasBoxesWidget(),
+                  // salasBoxesWidget(),
+                  // salasBoxesWidget(),
                 ])));
   }
 }
@@ -64,7 +135,7 @@ Widget salasBoxesWidget() {
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(5.0))),
           color: Colors.orange),
-      child: Text("Aqui ficariam as informações de cada sala.",
+      child: Text("Buscando outros jogadores...",
           style: TextStyle(
               fontSize: 20,
               color: Colors.white,
