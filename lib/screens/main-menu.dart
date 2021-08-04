@@ -52,6 +52,33 @@ class _MainMenuState extends State<MainMenu> {
     }
   }
 
+  void logInUser() async {
+    var db = FirebaseFirestore.instance;
+    DocumentSnapshot foundedUser =
+        await db.collection('usuarios').doc(playerName).get();
+    if(foundedUser.exists &&
+    foundedUser.data()['usuario'] == playerName &&
+    foundedUser.data()['senha'] == playerPassword){
+      await db.collection('usuarios').doc(playerName).update({
+        'estado':'disponivel',
+        });
+      Navigator.pushReplacementNamed(
+        context, router.userMenuPage,
+        arguments: {'playerName': playerName}
+      );
+    }
+    else{
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: new Text('Login'),
+              content: new Text('Erro usuario ou senha invalidos'),
+            );
+          });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -158,14 +185,8 @@ class _MainMenuState extends State<MainMenu> {
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
-                              // var db = FirebaseFirestore.instance;
-                              // db.collection("usuarios").add({
-                              //   "nome": playerName,
-                              // });
+                              logInUser();
                             });
-                            Navigator.pushReplacementNamed(
-                                context, router.userMenuPage,
-                                arguments: {'playerName': playerName});
                           },
                           style: ElevatedButton.styleFrom(
                             primary: Colors.deepPurpleAccent,
