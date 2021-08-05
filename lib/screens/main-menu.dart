@@ -56,18 +56,15 @@ class _MainMenuState extends State<MainMenu> {
     var db = FirebaseFirestore.instance;
     DocumentSnapshot foundedUser =
         await db.collection('usuarios').doc(playerName).get();
-    if(foundedUser.exists &&
-    foundedUser.data()['usuario'] == playerName &&
-    foundedUser.data()['senha'] == playerPassword){
+    if (foundedUser.exists &&
+        foundedUser.data()['usuario'] == playerName &&
+        foundedUser.data()['senha'] == playerPassword) {
       await db.collection('usuarios').doc(playerName).update({
-        'estado':'disponivel',
-        });
-      Navigator.pushReplacementNamed(
-        context, router.userMenuPage,
-        arguments: {'playerName': playerName}
-      );
-    }
-    else{
+        'estado': 'disponivel',
+      });
+      Navigator.pushReplacementNamed(context, router.userMenuPage,
+          arguments: {'playerName': playerName});
+    } else {
       showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -250,6 +247,23 @@ class _MainMenuState extends State<MainMenu> {
                         ),
                       )
                     : Text(''),
+                SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                    onPressed: () {
+                       Navigator.pushReplacementNamed(context, router.testPage);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.amberAccent,
+                    ),
+                    child: Text(
+                      'Teste Sala',
+                      style: new TextStyle(
+                        fontSize: 20.0,
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
           ),
