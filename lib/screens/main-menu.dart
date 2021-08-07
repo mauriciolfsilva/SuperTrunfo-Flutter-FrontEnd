@@ -56,18 +56,15 @@ class _MainMenuState extends State<MainMenu> {
     var db = FirebaseFirestore.instance;
     DocumentSnapshot foundedUser =
         await db.collection('usuarios').doc(playerName).get();
-    if(foundedUser.exists &&
-    foundedUser.data()['usuario'] == playerName &&
-    foundedUser.data()['senha'] == playerPassword){
+    if (foundedUser.exists &&
+        foundedUser.data()['usuario'] == playerName &&
+        foundedUser.data()['senha'] == playerPassword) {
       await db.collection('usuarios').doc(playerName).update({
-        'estado':'disponivel',
-        });
-      Navigator.pushReplacementNamed(
-        context, router.userMenuPage,
-        arguments: {'playerName': playerName}
-      );
-    }
-    else{
+        'estado': 'disponivel',
+      });
+      Navigator.pushReplacementNamed(context, router.userMenuPage,
+          arguments: {'playerName': playerName});
+    } else {
       showDialog(
           context: context,
           builder: (BuildContext context) {
