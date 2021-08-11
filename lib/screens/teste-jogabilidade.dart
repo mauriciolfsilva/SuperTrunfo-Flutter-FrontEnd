@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grupoazul20211/route/route.dart' as router;
+import 'package:grupoazul20211/screens/game.dart';
 
 //classe que extende estados que serão usados para manipular as informações
 //na tela.
@@ -36,6 +37,8 @@ class _TestePhaseState extends State<TestePhase> {
 
   @override
   Widget build(BuildContext context) {
+    Carta cartaDaVez =
+        Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
     return new Scaffold(
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
@@ -53,9 +56,12 @@ class _TestePhaseState extends State<TestePhase> {
                 duration: Duration(seconds: 1),
                 child: AnimatedContainer(
                   width: animateWidth(animateState),
+                  height: animateWidth(animateState),
                   duration: Duration(seconds: 1),
                   child: ElevatedButton(
-                      child: Image.asset('assets/images/1.jpg'),
+                      style:
+                          ElevatedButton.styleFrom(primary: Colors.transparent),
+                      child: cartaDaVez,
                       onPressed: () {
                         setState(() {
                           animateState =
