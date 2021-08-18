@@ -247,23 +247,6 @@ class _MainMenuState extends State<MainMenu> {
                         ),
                       )
                     : Text(''),
-                SizedBox(
-                  width: 200,
-                  child: ElevatedButton(
-                    onPressed: () {
-                       Navigator.pushReplacementNamed(context, router.testPage);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.amberAccent,
-                    ),
-                    child: Text(
-                      'Teste Sala',
-                      style: new TextStyle(
-                        fontSize: 20.0,
-                      ),
-                    ),
-                  ),
-                )
               ],
             ),
           ),

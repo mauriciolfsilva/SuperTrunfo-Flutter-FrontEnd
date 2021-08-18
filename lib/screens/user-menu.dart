@@ -31,14 +31,14 @@ class UserMenu extends StatelessWidget {
     db.collection('partidas').doc(gameId).snapshots().listen((result) {
       if (result.data()['jogador2'] != null) {
         //irPara a partida
-        sendToGame(context, gameId);
+        sendToGame(context, gameId, playerName);
       }
     });
   }
 
-  sendToGame(BuildContext context, String gameId) {
+  sendToGame(BuildContext context, String gameId, String playerName) {
     Navigator.pushReplacementNamed(context, router.gamePage,
-        arguments: {'gameId': gameId});
+        arguments: {'gameId': gameId, 'playerName': playerName});
   }
 
   void signInMatch(String playerName, BuildContext context) async {
@@ -51,7 +51,7 @@ class UserMenu extends StatelessWidget {
       db.collection('partidas').doc(gameId).update({
         "jogador2": playerName,
       });
-      sendToGame(context, gameId);
+      sendToGame(context, gameId, playerName);
     }
   }
 
@@ -60,11 +60,17 @@ class UserMenu extends StatelessWidget {
     db.collection('partidas').doc().set({
       "jogador1": playerName,
       "jogador2": null,
+      "jogadorTurno": playerName,
+      "idCartaTurnoJogador1": null,
+      "idCartaTurnoJogador2": null,
+      "atributoDoTurno": null,
+      "pontuacaoJogador1": 0,
+      "pontuacaoJogador2": 0,
+      "cartasRemovidas": [],
     });
 
     var gameIdQuery =
         await db.collection('partidas').where('jogador2', isNull: true).get();
-    ;
 
     waitingForPlayer(playerName, gameIdQuery.docs[0].id, context);
   }
