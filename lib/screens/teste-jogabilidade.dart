@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grupoazul20211/route/route.dart' as router;
 import 'package:grupoazul20211/screens/game.dart';
+import 'package:flip_card/flip_card.dart';
 
 //classe que extende estados que serão usados para manipular as informações
 //na tela.
@@ -11,28 +12,81 @@ class TestePhase extends StatefulWidget {
 }
 
 class _TestePhaseState extends State<TestePhase> {
-  String animateState = 'deck';
+  String p1AnimateState = 'deck';
+  String p2AnimateState = 'deck';
+
+  GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
 
   double animateWidth(String state) {
-    if (state == 'zoom') return 300;
-    return 100;
+    if (state == 'zoom')
+      return 315;
+    else if (state == 'display')
+      return 205;
+    else if (state == 'showCards') return 205;
+    return 150;
   }
 
-  Alignment animateAlignment(String state) {
+  double animateHeight(String state) {
+    if (state == 'zoom')
+      return 400;
+    else if (state == 'display')
+      return 300;
+    else if (state == 'showCards') return 300;
+    return 150;
+  }
+
+  Alignment p1AnimateAlignment(String state) {
     switch (state) {
       case 'deck':
-        print(1);
         return Alignment.bottomRight;
       case 'draw':
-        print(2);
         return Alignment.bottomCenter;
       case 'zoom':
-        print(3);
         return Alignment.center;
-      default:
-        print(4);
-        return Alignment.bottomCenter;
+      case 'display':
+        return Alignment.centerRight;
+      case 'showCards':
+        return Alignment.centerRight;
     }
+  }
+
+  Alignment p2AnimateAlignment(String state) {
+    switch (state) {
+      case 'deck':
+        return Alignment.topLeft;
+      case 'draw':
+        return Alignment.topCenter;
+      case 'display':
+        return Alignment.centerLeft;
+      case 'showCards':
+        return Alignment.centerLeft;
+    }
+  }
+
+  String p1UpdateState(String state) {
+    if (state == "draw")
+      return "zoom";
+    else if (state == "zoom")
+      return "display";
+    else if (state == "display")
+      return "showCards";
+    else if (state == "deck")
+      return "draw";
+    else
+      return "deck";
+  }
+
+  String p2UpdateState(String state, String p1State) {
+    if (state == "deck" && p1State == "draw")
+      return "draw";
+    else if (state == "draw" && p1State == "zoom")
+      return "draw";
+    else if (state == "draw" && p1State == "display")
+      return "display";
+    else if (state == "display" && p1State == "showCards")
+      return "showCards";
+    else
+      return "deck";
   }
 
   @override
@@ -42,34 +96,79 @@ class _TestePhaseState extends State<TestePhase> {
     return new Scaffold(
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
-          child: Container(
+            child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: double.infinity,
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('assets/images/Background.png'),
+                  fit: BoxFit.cover,
+                  colorFilter:
+                      ColorFilter.mode(Colors.black45, BlendMode.darken))),
+          child: Stack(children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: AssetImage('assets/images/Background.png'),
-                      fit: BoxFit.cover,
-                      colorFilter:
-                          ColorFilter.mode(Colors.black45, BlendMode.darken))),
               child: AnimatedAlign(
-                alignment: animateAlignment(animateState),
+                alignment: p2AnimateAlignment(p2AnimateState),
                 duration: Duration(seconds: 1),
                 child: AnimatedContainer(
-                  width: animateWidth(animateState),
-                  height: animateWidth(animateState),
+                    width: animateWidth(p2AnimateState) - 10,
+                    height: animateHeight(p2AnimateState) - 15,
+                    margin: EdgeInsets.all(10),
+                    duration: Duration(seconds: 1),
+                    child: FlipCard(
+                        key: cardKey,
+                        flipOnTouch: false,
+                        direction: FlipDirection.HORIZONTAL,
+                        front: Container(
+                            decoration: BoxDecoration(
+                          color: Colors.cyan,
+                          borderRadius: BorderRadius.circular(5),
+                        )),
+                        back: Container(
+                            decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5),
+                        )))),
+              ),
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: AnimatedAlign(
+                alignment: p1AnimateAlignment(p1AnimateState),
+                duration: Duration(seconds: 1),
+                child: AnimatedContainer(
+                  width: animateWidth(p1AnimateState),
+                  height: animateHeight(p1AnimateState),
                   duration: Duration(seconds: 1),
-                  child: ElevatedButton(
-                      style:
-                          ElevatedButton.styleFrom(primary: Colors.transparent),
-                      child: cartaDaVez,
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(5)),
+                  child: TextButton(
+                      style: TextButton.styleFrom(primary: Colors.transparent),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5)),
+                        child: cartaDaVez,
+                      ),
                       onPressed: () {
                         setState(() {
-                          animateState =
-                              animateState == 'draw' ? 'zoom' : 'draw';
+                          p1AnimateState = p1UpdateState(p1AnimateState);
+                          p2AnimateState =
+                              p2UpdateState(p2AnimateState, p1AnimateState);
+                          (p1AnimateState == "showCards")
+                              ? cardKey.currentState.toggleCard()
+                              : false;
+                          (p1AnimateState == "deck")
+                              ? cardKey.currentState.toggleCard()
+                              : false;
                         });
                       }),
                 ),
-              )),
-        ));
+              ),
+            )
+          ]),
+        )));
   }
 }
