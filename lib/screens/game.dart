@@ -162,32 +162,25 @@ class _TestePhaseState extends State<Game> {
   String jogadorDoTurno;
   bool realizarAcao = false;
   int cartaEscolhida;
+  var listaCartasOficial = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   var listaCartas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
   void passarTurno(String gameId) async {
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(gameId).update({
       "jogadorTurno": jogador2,
-      "turnoAtivo": false,
     });
   }
 
-  void listenerParaRemoverCartas(String gameId) {
-    var db = FirebaseFirestore.instance;
-    db.collection('partidas').doc(gameId).snapshots().listen((result) {
-      var cartasRemovidas = result.data()['cartasRemovidas'];
-      var conjuntoDeck = Set.from(listaCartas);
-      var conjuntoRemovidas = Set.from(cartasRemovidas);
+  void removerCartas(DocumentSnapshot doc, String gameId) {
+    var cartasRemovidas = doc.data()['cartasRemovidas'];
+    var conjuntoDeck = Set.from(listaCartas);
+    var conjuntoRemovidas = Set.from(cartasRemovidas);
 
-      listaCartas = List.from(conjuntoDeck.difference(conjuntoRemovidas));
-    });
+    listaCartas = List.from(conjuntoDeck.difference(conjuntoRemovidas));
   }
 
-  void realizarAcaoNoTurno() {
-    print('aqui2');
-    realizarAcao = true;
-  }
-
-  void receberTurno(String gameId, String jogadorPrincipal) async {
+  void buscarJogador2Nome(String gameId) async {
     var db = FirebaseFirestore.instance;
     var data;
     await db
@@ -197,18 +190,70 @@ class _TestePhaseState extends State<Game> {
         .then((doc) => {data = doc.data()});
 
     jogador2 = data['jogador2'];
+  }
 
+  void listenerDoJogo(String gameId, String jogadorPrincipal) async {
+    var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(gameId).snapshots().listen((result) {
-      var turnoAtivo = result.data()['turnoAtivo'];
+      removerCartas(result, gameId);
+      var idCartaTurnoJogadorTurno = result.data()['idCartaTurnoJogadorTurno'];
+      var idCartaTurnoJogadorNaoTurno =
+          result.data()['idCartaTurnoJogadorNaoTurno'];
       jogadorDoTurno = result.data()['jogadorTurno'];
-      if (jogadorDoTurno == jogadorPrincipal && turnoAtivo != true) {
-        db.collection('partidas').doc(gameId).update({
-          "turnoAtivo": true,
-        });
-
-        realizarAcaoNoTurno();
+      if (jogadorDoTurno == jogadorPrincipal &&
+          idCartaTurnoJogadorTurno == null) {
+        solicitarSaqueDeCartaTurno();
+      } else if (jogadorDoTurno == jogadorPrincipal &&
+          idCartaTurnoJogadorTurno != null) {
+        if (idCartaTurnoJogadorNaoTurno != null) {
+          calcularPontuacaoRodada();
+        } else {
+          esperarJogadorNaoTurnoRetirarCarta();
+        }
+      } else if (jogadorDoTurno != jogadorPrincipal &&
+          idCartaTurnoJogadorNaoTurno == null) {
+        solicitarSaqueDeCartaNaoTurno();
+      } else if (jogadorDoTurno != jogadorPrincipal &&
+          idCartaTurnoJogadorNaoTurno != null) {
+        if (idCartaTurnoJogadorTurno != null) {
+          esperarJogador1CalcularPontuacao();
+        } else {
+          esperarJogadorTurnoRetirarCarta();
+        }
       }
     });
+  }
+
+  void solicitarSaqueDeCartaTurno() {
+    // Escrever na tela para o jogador sacar a carta
+    // Pedir para o jogador selecionar o atributo da rodada
+    // Preencher no banco qual o id da carta selecionada pelo jogador do turno
+    // Preencher no banco qual atributo escolhido pelo jogador do Turno
+    // preencher no banco qual id de carta foi removida pelo jogador
+  }
+
+  void calcularPontuacaoRodada() {
+    // calcular baseado nos 2 ids de cartas escolhidas no banco e pelo atributo escolhido quem venceu a rodada,
+    // somar ponto no banco para o jogador que venceu e zerar demais atributos de jogo no banco, como ids e atributo escolhido.
+    // passar a vez para o proximo jogador
+  }
+
+  void solicitarSaqueDeCartaNaoTurno() {
+    // Escrever na tela para o jogador sacar a carta
+    // Preencher no banco qual o id da carta selecionada pelo jogador do Nao turno
+    // preencher no banco qual id de carta foi removida pelo jogador
+  }
+
+  void esperarJogadorNaoTurnoRetirarCarta() {
+    //Animacao ou mensagem de aguardando ação do proximo jogador
+  }
+
+  void esperarJogador1CalcularPontuacao() {
+    //Animacao ou mensagem de aguardando ação do proximo jogador
+  }
+
+  void esperarJogadorTurnoRetirarCarta() {
+    //Animacao ou mensagem de aguardando ação do proximo jogador
   }
 
   double animateWidth(String state) {
@@ -240,8 +285,8 @@ class _TestePhaseState extends State<Game> {
     var gameId = arguments['gameId'];
     Carta cartaDaVez =
         Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
-    receberTurno(gameId, jogadorPrincipal); //
-    listenerParaRemoverCartas(gameId);
+    buscarJogador2Nome(gameId);
+    listenerDoJogo(gameId, jogadorPrincipal); //
     return new Scaffold(
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
