@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grupoazul20211/route/route.dart' as router;
@@ -16,7 +18,6 @@ class TestePhase extends StatefulWidget {
 }
 
 class _TestePhaseState extends State<TestePhase> {
-
   // variavel "inicio" indica que acabamos de iniciar o jogo
   int inicio = 1;
 
@@ -99,7 +100,6 @@ class _TestePhaseState extends State<TestePhase> {
 
   @override
   Widget build(BuildContext context) {
-
     //chama o metodo mostraWidgetPorUmTempo no inicio
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (inicio == 1) {
@@ -108,11 +108,14 @@ class _TestePhaseState extends State<TestePhase> {
       }
     });
 
-    Carta cartaDaVez = Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
+    Carta cartaDaVez =
+        Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
     return new Scaffold(
         resizeToAvoidBottomInset: true,
-        body: SingleChildScrollView(
-            child: Container(
+        body: Stack(
+          children: <Widget>[
+            SingleChildScrollView(
+                child: Container(
               height: MediaQuery.of(context).size.height,
               width: double.infinity,
               decoration: BoxDecoration(
@@ -120,7 +123,7 @@ class _TestePhaseState extends State<TestePhase> {
                       image: AssetImage('assets/images/Background.png'),
                       fit: BoxFit.cover,
                       colorFilter:
-                      ColorFilter.mode(Colors.black45, BlendMode.darken))),
+                          ColorFilter.mode(Colors.black45, BlendMode.darken))),
               child: Stack(children: [
                 Container(
                   width: MediaQuery.of(context).size.width,
@@ -139,14 +142,14 @@ class _TestePhaseState extends State<TestePhase> {
                             direction: FlipDirection.HORIZONTAL,
                             front: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.cyan,
-                                  borderRadius: BorderRadius.circular(5),
-                                )),
+                              color: Colors.cyan,
+                              borderRadius: BorderRadius.circular(5),
+                            )),
                             back: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(5),
-                                )))),
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5),
+                            )))),
                   ),
                 ),
                 Container(
@@ -160,9 +163,10 @@ class _TestePhaseState extends State<TestePhase> {
                       height: animateHeight(p1AnimateState),
                       duration: Duration(seconds: 1),
                       decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(5)),
+                          BoxDecoration(borderRadius: BorderRadius.circular(5)),
                       child: TextButton(
-                          style: TextButton.styleFrom(primary: Colors.transparent),
+                          style:
+                              TextButton.styleFrom(primary: Colors.transparent),
                           child: Container(
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5)),
@@ -185,7 +189,16 @@ class _TestePhaseState extends State<TestePhase> {
                   ),
                 )
               ]),
-            )));
+            )),
+
+
+
+            // WIDGET DE FIM FICA NO FIM DESSE STACK PARA APARECER NA FRENTE DOS OUTROS
+            //resultado('Vitória', Colors.cyan, context),
+
+
+          ],
+        ));
   }
 }
 
@@ -244,76 +257,92 @@ Widget vsText() {
   );
 }
 
-
-
 // Widget que mostra a tela de vitória ou derrota no fim da partida
-/* pra testar coloca esse widget:
-
-resultado('Vitória', Colors.green, context),
+/* pra testar ta na linha 196
 
 */
 Widget resultado(String text, MaterialColor cor, BuildContext context) {
-  return Center(
-    child: ShowUpAnimation(
-      //suaviza a entrada pra usar tem q por dependencia no pubspec
-      delayStart: Duration(seconds: 0),
-      animationDuration: Duration(seconds: 1),
-      curve: Curves.bounceIn,
-      direction: Direction.vertical,
-      offset: 0.5,
-      child: Material(
-        type: MaterialType.transparency,
+  return Stack(
+    children: <Widget>[
+      BackdropFilter( // deixa o fundo borrado
+        filter: ui.ImageFilter.blur(
+          sigmaX: 8.0,
+          sigmaY: 8.0,
+        ),
         child: Container(
-          height: 200,
-          width: 350,
-          child: Card(
-            shadowColor: Colors.blue,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Row(
+          color: Colors.transparent,
+        ),
+      ),
+      Center(
+        child: ShowUpAnimation(
+          //suaviza a entrada pra usar tem q por dependencia no pubspec
+          delayStart: Duration(seconds: 0),
+          animationDuration: Duration(seconds: 1),
+          curve: Curves.bounceIn,
+          direction: Direction.vertical,
+          offset: 0.5,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Container(
+              height: 200,
+              width: 350,
+              child: Card(
+                shadowColor: Colors.blue,
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text(
-                      text,
-                      style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontSize: 65.0,
-                        color: cor,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          text,
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 65.0,
+                            color: cor,
+                            fontWeight: FontWeight.bold,
+                            shadows: <Shadow>[
+                              Shadow(
+                                offset: Offset(2, 2),
+                                blurRadius: 7.0,
+                                color: Colors.black38,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Image.asset(
+                          "assets/images/dance-anime-omae-wa-mou-shindeiru.gif",
+                          height: 125.0,
+                          width: 125.0,
+                        ),
+                      ],
                     ),
-                    Image.asset(
-                      "assets/images/dance-anime-omae-wa-mou-shindeiru.gif",
-                      height: 125.0,
-                      width: 125.0,
+                    SizedBox(
+                      width: 200,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => MainMenu()));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.pink,
+                        ),
+                        child: Text(
+                          'Jogar novamente',
+                          style: new TextStyle(
+                            fontSize: 20.0,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(
-                  width: 200,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => MainMenu()));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.blue,
-                    ),
-                    child: Text(
-                      'Jogar novamente',
-                      style: new TextStyle(
-                        fontSize: 20.0,
-                        fontFamily: 'Montserrat',
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
       ),
-    ),
+    ],
   );
 }
