@@ -136,24 +136,7 @@ class Carta extends StatelessWidget {
 }
 
 class Game extends StatefulWidget {
-  @override
-  // _GameState createState() => _GameState();
-
   _TestePhaseState createState() => _TestePhaseState();
-}
-
-class _GameState extends State<Game> {
-  Carta cartaDaVez =
-      Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7); //teste
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-          backgroundColor: Colors.black,
-          body: new Container(alignment: Alignment.center, child: cartaDaVez)),
-    );
-  }
 }
 
 class _TestePhaseState extends State<Game> {
@@ -161,7 +144,8 @@ class _TestePhaseState extends State<Game> {
   String jogador2;
   String jogadorDoTurno;
   bool realizarAcao = false;
-  int cartaEscolhida;
+  int cartaSorteada;
+  var jogadorPrincipal, gameId;
   var listaCartasOficial = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   var listaCartas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -196,13 +180,18 @@ class _TestePhaseState extends State<Game> {
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(gameId).snapshots().listen((result) {
       removerCartas(result, gameId);
+      jogadorDoTurno = result.data()['jogadorTurno'];
+
+      print("JOGADOR DO TURNO ATUALIZADO: $jogadorDoTurno");
+      print("LISTA DE CARTAS AUTORIZADAS: $listaCartas");
+
+      /*
       var idCartaTurnoJogadorTurno = result.data()['idCartaTurnoJogadorTurno'];
-      var idCartaTurnoJogadorNaoTurno =
-          result.data()['idCartaTurnoJogadorNaoTurno'];
+      var idCartaTurnoJogadorNaoTurno = result.data()['idCartaTurnoJogadorNaoTurno'];
       jogadorDoTurno = result.data()['jogadorTurno'];
       if (jogadorDoTurno == jogadorPrincipal &&
           idCartaTurnoJogadorTurno == null) {
-        solicitarSaqueDeCartaTurno();
+        solicitarSaqueDeCarta();
       } else if (jogadorDoTurno == jogadorPrincipal &&
           idCartaTurnoJogadorTurno != null) {
         if (idCartaTurnoJogadorNaoTurno != null) {
@@ -221,16 +210,65 @@ class _TestePhaseState extends State<Game> {
           esperarJogadorTurnoRetirarCarta();
         }
       }
+      */
     });
   }
 
-  void solicitarSaqueDeCartaTurno() {
+  void solicitarSaqueDeCarta(){
     // Escrever na tela para o jogador sacar a carta
-    // Pedir para o jogador selecionar o atributo da rodada
-    // Preencher no banco qual o id da carta selecionada pelo jogador do turno
-    // Preencher no banco qual atributo escolhido pelo jogador do Turno
-    // preencher no banco qual id de carta foi removida pelo jogador
   }
+
+  void solicitarEscolhaDeAtributoDaCarta(){
+    // Pedir para o jogador selecionar o atributo da rodada
+  }
+  
+  bool jodadorPrincipalEJogadorDoTurno(){
+    /*
+    var db = FirebaseFirestore.instance;
+    DocumentSnapshot foundedUser =
+        await db.collection('partidas').doc(gameId).get();
+    return foundedUser.data()['jogadorTurno'] == jogadorPrincipal
+    */
+    return jogadorPrincipal == jogadorDoTurno;
+  }
+
+  void inserirCartaJogadorBD(gameId, carta){
+    var atributoBD = jodadorPrincipalEJogadorDoTurno() ?
+                     "idCartaTurnoJogadorTurno" : "idCartaTurnoJogadorNaoTurno";
+    var db = FirebaseFirestore.instance;
+    db.collection('partidas').doc(gameId).update({
+      atributoBD: carta
+    });
+  }
+
+  void atualizarCartasRemovidasBD(gameId, cartaRemovida){
+    var db = FirebaseFirestore.instance;
+    db.collection('partidas').doc(gameId).update({
+      "cartasRemovidas":
+          FieldValue.arrayUnion([cartaRemovida])
+    });
+  }
+
+  ////OS TIPOS INT DESSA FUNÇÃO DEVEM SER FUTURAMENTE MODIFICADOS PARA Carta
+  int sortearCarta(List<int> cartas){
+    cartas.shuffle();
+    return cartas[0];
+  }
+
+  //Essa função deve ser chamada quando o jogador
+  //desejar selecionar uma nova carta do baralho
+  void sacarCarta(gameId) {
+    this.cartaSorteada = sortearCarta(this.listaCartas);
+    atualizarCartasRemovidasBD(gameId, this.cartaSorteada);
+    inserirCartaJogadorBD(gameId, this.cartaSorteada);
+
+    ////DEBUG
+    print("CARTA SORTEADA: $this.cartaSorteada");
+    ////
+  }
+
+  // Preencher no banco qual atributo escolhido pelo jogador do Turno
+  
 
   void calcularPontuacaoRodada() {
     // calcular baseado nos 2 ids de cartas escolhidas no banco e pelo atributo escolhido quem venceu a rodada,
@@ -281,12 +319,15 @@ class _TestePhaseState extends State<Game> {
   @override
   Widget build(BuildContext context) {
     final arguments = ModalRoute.of(context).settings.arguments as Map;
-    var jogadorPrincipal = arguments['playerName'];
-    var gameId = arguments['gameId'];
+    this.jogadorPrincipal = arguments['playerName'];
+    this.gameId = arguments['gameId'];
+
     Carta cartaDaVez =
         Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
+    
     buscarJogador2Nome(gameId);
     listenerDoJogo(gameId, jogadorPrincipal); //
+    
     return new Scaffold(
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
@@ -317,23 +358,7 @@ class _TestePhaseState extends State<Game> {
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          if (realizarAcao) {
-                            cartaEscolhida =
-                                (listaCartas.toList()..shuffle()).first;
-
-                            print(cartaEscolhida);
-                            print('aqui');
-
-                            var db = FirebaseFirestore.instance;
-
-                            db.collection('partidas').doc(gameId).update({
-                              "cartasRemovidas":
-                                  FieldValue.arrayUnion([cartaEscolhida])
-                            });
-
-                            realizarAcao = false;
-                          }
-                          ;
+                          sacarCarta(gameId);
                         });
                       },
                       style: ElevatedButton.styleFrom(
