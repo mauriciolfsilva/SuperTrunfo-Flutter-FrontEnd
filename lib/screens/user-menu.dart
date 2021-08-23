@@ -63,7 +63,7 @@ class UserMenu extends StatelessWidget {
       "jogadorTurno": playerName,
       "idCartaTurnoJogadorTurno": null,
       "idCartaTurnoJogadorNaoTurno": null,
-      "atributoDoTurno": null,
+      "atributoTurno": null,
       "pontuacaoJogador1": 0,
       "pontuacaoJogador2": 0,
       "cartasRemovidas": [],

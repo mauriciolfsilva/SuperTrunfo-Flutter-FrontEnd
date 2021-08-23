@@ -141,8 +141,10 @@ class Game extends StatefulWidget {
 
 class _TestePhaseState extends State<Game> {
   String animateState = 'deck';
-  String jogador1, jogador2, jogadorDoTurno;
-  bool realizarAcao = false;
+  String jogador1, jogador2, jogadorTurno;
+  int pontuacaoJogador1, pontuacaoJogador2;
+  int idCartaTurnoJogadorTurno, idCartaTurnoJogadorNaoTurno;
+  var atributoTurno;
   int cartaSorteada;
   var jogadorPrincipal, gameId;
   var cartasNoDeck = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -159,40 +161,64 @@ class _TestePhaseState extends State<Game> {
     });
   }
 
-  void atualizarCartasNoDeck(DocumentSnapshot partida) {
-    var cartasRemovidas = partida.data()['cartasRemovidas'];
+  bool jodadorPrincipalEJogadorTurno(){
+    return this.jogadorPrincipal == this.jogadorTurno;
+  }
+
+  void atualizarAtributoTurno(dadosPartida){
+    this.atributoTurno = dadosPartida['atributoTurno'];
+  }
+  
+  void atualizarJogadorTurno(dadosPartida){
+    this.jogadorTurno = dadosPartida['jogadorTurno'];
+  }
+  
+  void atualizarPontuacaoJogadores(dadosPartida){
+    this.pontuacaoJogador1 = dadosPartida['pontuacaoJogador1'];
+    this.pontuacaoJogador2 = dadosPartida['pontuacaoJogador2'];
+  }
+
+  void atualizarIdsCartasTurnoJogadores(dadosPartida){
+    this.idCartaTurnoJogadorTurno = dadosPartida['idCartaTurnoJogadorTurno'];
+    this.idCartaTurnoJogadorNaoTurno = dadosPartida['idCartaTurnoJogadorNaoTurno'];
+  }
+
+  void atualizarCartasNoDeck(dadosDaPartida) {
+    var cartasRemovidas = dadosDaPartida['cartasRemovidas'];
     var conjuntoRemovidas = Set.from(cartasRemovidas);
     var conjuntoDeck = Set.from(this.cartasNoDeck);
     this.cartasNoDeck = List.from(conjuntoDeck.difference(conjuntoRemovidas));
   }
 
+  void atualizarAtributos(DocumentSnapshot partida){
+    var dadosPartida = partida.data();
+    atualizarCartasNoDeck(dadosPartida);
+    atualizarIdsCartasTurnoJogadores(dadosPartida);
+    atualizarPontuacaoJogadores(dadosPartida);
+    atualizarJogadorTurno(dadosPartida);
+    atualizarAtributoTurno(dadosPartida);
+  }
+
   Future<void> listenerDoJogo() async {
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(this.gameId).snapshots().listen((result) {
-      atualizarCartasNoDeck(result);
-      jogadorDoTurno = result.data()['jogadorTurno'];
-
-      print("JOGADOR DO TURNO ATUALIZADO: $jogadorDoTurno");
-      print("LISTA DE CARTAS AUTORIZADAS: $cartasNoDeck");
+      atualizarAtributos(result);
 
       /*
-      var idCartaTurnoJogadorTurno = result.data()['idCartaTurnoJogadorTurno'];
-      var idCartaTurnoJogadorNaoTurno = result.data()['idCartaTurnoJogadorNaoTurno'];
-      jogadorDoTurno = result.data()['jogadorTurno'];
-      if (jogadorDoTurno == jogadorPrincipal &&
+      if (jodadorPrincipalEJogadorTurno() &&
           idCartaTurnoJogadorTurno == null) {
         solicitarSaqueDeCarta();
-      } else if (jogadorDoTurno == jogadorPrincipal &&
+      } else if (jogadorTurno == jogadorPrincipal &&
           idCartaTurnoJogadorTurno != null) {
         if (idCartaTurnoJogadorNaoTurno != null) {
           calcularPontuacaoRodada();
         } else {
           esperarJogadorNaoTurnoRetirarCarta();
         }
-      } else if (jogadorDoTurno != jogadorPrincipal &&
+      } else if (jogadorTurno != jogadorPrincipal &&
           idCartaTurnoJogadorNaoTurno == null) {
         solicitarSaqueDeCartaNaoTurno();
-      } else if (jogadorDoTurno != jogadorPrincipal &&
+      } else if (jogadorTurno != jogadorPrincipal &&
           idCartaTurnoJogadorNaoTurno != null) {
         if (idCartaTurnoJogadorTurno != null) {
           esperarJogador1CalcularPontuacao();
@@ -210,20 +236,10 @@ class _TestePhaseState extends State<Game> {
 
   void solicitarEscolhaDeAtributoDaCarta(){
     // Pedir para o jogador selecionar o atributo da rodada
-  }
-  
-  bool jodadorPrincipalEJogadorDoTurno(){
-    /*
-    var db = FirebaseFirestore.instance;
-    DocumentSnapshot foundedUser =
-        await db.collection('partidas').doc(gameId).get();
-    return foundedUser.data()['jogadorTurno'] == jogadorPrincipal
-    */
-    return jogadorPrincipal == jogadorDoTurno;
-  }
+  }  
 
   void inserirCartaJogadorBD(carta){
-    var atributoBD = jodadorPrincipalEJogadorDoTurno() ?
+    var atributoBD = jodadorPrincipalEJogadorTurno() ?
                      "idCartaTurnoJogadorTurno" : "idCartaTurnoJogadorNaoTurno";
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(this.gameId).update({
@@ -239,8 +255,7 @@ class _TestePhaseState extends State<Game> {
     });
   }
 
-  ////OS TIPOS INT DESSA FUNÇÃO DEVEM SER FUTURAMENTE MODIFICADOS PARA Carta
-  int sortearCarta(List<int> cartas){
+  sortearCarta(List cartas){
     cartas.shuffle();
     return cartas[0];
   }
@@ -251,14 +266,11 @@ class _TestePhaseState extends State<Game> {
     this.cartaSorteada = sortearCarta(this.cartasNoDeck);
     atualizarCartasRemovidasBD(this.cartaSorteada);
     inserirCartaJogadorBD(this.cartaSorteada);
-
-    ////DEBUG
-    print("CARTA SORTEADA: $this.cartaSorteada");
-    ////
   }
 
-  // Preencher no banco qual atributo escolhido pelo jogador do Turno
-  
+  void escolherAtributoTurno(){
+    // Preencher no banco qual atributo escolhido pelo jogador do Turno
+  }
 
   void calcularPontuacaoRodada() {
     // calcular baseado nos 2 ids de cartas escolhidas no banco e pelo atributo escolhido quem venceu a rodada,
@@ -320,7 +332,7 @@ class _TestePhaseState extends State<Game> {
     var jogadores = await getJogadoresBD();
     this.jogador1 = jogadores[0];
     this.jogador2 = jogadores[1];
-    this.jogadorDoTurno = jogadores[2];
+    this.jogadorTurno = jogadores[2];
   }
 
   @override
