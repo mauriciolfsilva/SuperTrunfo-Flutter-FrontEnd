@@ -145,7 +145,7 @@ class _TestePhaseState extends State<Game> {
   bool realizarAcao = false;
   int cartaSorteada;
   var jogadorPrincipal, gameId;
-  var listaCartas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  var cartasNoDeck = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   void passarTurno(String gameId) async {
     var db = FirebaseFirestore.instance;
@@ -156,22 +156,22 @@ class _TestePhaseState extends State<Game> {
 
   void removerCartas(DocumentSnapshot doc, String gameId) {
     var cartasRemovidas = doc.data()['cartasRemovidas'];
-    var conjuntoDeck = Set.from(listaCartas);
+    var conjuntoDeck = Set.from(cartasNoDeck);
     var conjuntoRemovidas = Set.from(cartasRemovidas);
 
-    listaCartas = List.from(conjuntoDeck.difference(conjuntoRemovidas));
+    cartasNoDeck = List.from(conjuntoDeck.difference(conjuntoRemovidas));
   }
 
 
 
-  void listenerDoJogo(String gameId, String jogadorPrincipal) async {
+  Future<void> listenerDoJogo() async {
     var db = FirebaseFirestore.instance;
-    db.collection('partidas').doc(gameId).snapshots().listen((result) {
-      removerCartas(result, gameId);
+    db.collection('partidas').doc(this.gameId).snapshots().listen((result) {
+      removerCartas(result, this.gameId);
       jogadorDoTurno = result.data()['jogadorTurno'];
 
       print("JOGADOR DO TURNO ATUALIZADO: $jogadorDoTurno");
-      print("LISTA DE CARTAS AUTORIZADAS: $listaCartas");
+      print("LISTA DE CARTAS AUTORIZADAS: $cartasNoDeck");
 
       /*
       var idCartaTurnoJogadorTurno = result.data()['idCartaTurnoJogadorTurno'];
@@ -220,18 +220,18 @@ class _TestePhaseState extends State<Game> {
     return jogadorPrincipal == jogadorDoTurno;
   }
 
-  void inserirCartaJogadorBD(gameId, carta){
+  void inserirCartaJogadorBD(carta){
     var atributoBD = jodadorPrincipalEJogadorDoTurno() ?
                      "idCartaTurnoJogadorTurno" : "idCartaTurnoJogadorNaoTurno";
     var db = FirebaseFirestore.instance;
-    db.collection('partidas').doc(gameId).update({
+    db.collection('partidas').doc(this.gameId).update({
       atributoBD: carta
     });
   }
 
-  void atualizarCartasRemovidasBD(gameId, cartaRemovida){
+  void atualizarCartasRemovidasBD(cartaRemovida){
     var db = FirebaseFirestore.instance;
-    db.collection('partidas').doc(gameId).update({
+    db.collection('partidas').doc(this.gameId).update({
       "cartasRemovidas":
           FieldValue.arrayUnion([cartaRemovida])
     });
@@ -245,10 +245,10 @@ class _TestePhaseState extends State<Game> {
 
   //Essa função deve ser chamada quando o jogador
   //desejar selecionar uma nova carta do baralho
-  void sacarCarta(gameId) {
-    this.cartaSorteada = sortearCarta(this.listaCartas);
-    atualizarCartasRemovidasBD(gameId, this.cartaSorteada);
-    inserirCartaJogadorBD(gameId, this.cartaSorteada);
+  void sacarCarta() {
+    this.cartaSorteada = sortearCarta(this.cartasNoDeck);
+    atualizarCartasRemovidasBD(this.cartaSorteada);
+    inserirCartaJogadorBD(this.cartaSorteada);
 
     ////DEBUG
     print("CARTA SORTEADA: $this.cartaSorteada");
@@ -324,7 +324,7 @@ class _TestePhaseState extends State<Game> {
   @override
   Widget build(BuildContext context) {
     inicializarAtributos(context);
-    listenerDoJogo(gameId, jogadorPrincipal);
+    listenerDoJogo();
 
     Carta cartaDaVez = Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
     
@@ -352,13 +352,13 @@ class _TestePhaseState extends State<Game> {
                           gameId +
                           '\n' +
                           'Cartas ainda disponiveis: ' +
-                          listaCartas.toString(),
+                          cartasNoDeck.toString(),
                       style: TextStyle(color: Colors.white),
                     ),
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          sacarCarta(gameId);
+                          sacarCarta();
                         });
                       },
                       style: ElevatedButton.styleFrom(
