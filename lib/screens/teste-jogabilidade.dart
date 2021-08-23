@@ -1,17 +1,25 @@
+import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grupoazul20211/route/route.dart' as router;
 import 'package:grupoazul20211/screens/game.dart';
 import 'package:flip_card/flip_card.dart';
+import 'dart:async';
+import 'package:show_up_animation/show_up_animation.dart';
+import 'package:grupoazul20211/screens/main-menu.dart';
 
 //classe que extende estados que serão usados para manipular as informações
 //na tela.
+
 class TestePhase extends StatefulWidget {
   @override
   _TestePhaseState createState() => _TestePhaseState();
 }
 
 class _TestePhaseState extends State<TestePhase> {
+  // variavel "inicio" indica que acabamos de iniciar o jogo
+  int inicio = 1;
+
   String p1AnimateState = 'deck';
   String p2AnimateState = 'deck';
   int p1Score = 0;
@@ -93,6 +101,14 @@ class _TestePhaseState extends State<TestePhase> {
 
   @override
   Widget build(BuildContext context) {
+    //chama o metodo mostraWidgetPorUmTempo no inicio
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (inicio == 1) {
+        mostraWidgetPorUmTempo(context: context, widget: vsText());
+        inicio = 0;
+      }
+    });
+
     Carta cartaDaVez =
         Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
     return new Scaffold(
