@@ -141,12 +141,10 @@ class Game extends StatefulWidget {
 
 class _TestePhaseState extends State<Game> {
   String animateState = 'deck';
-  String jogador2;
-  String jogadorDoTurno;
+  String jogador1, jogador2, jogadorDoTurno;
   bool realizarAcao = false;
   int cartaSorteada;
   var jogadorPrincipal, gameId;
-  var listaCartasOficial = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   var listaCartas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   void passarTurno(String gameId) async {
@@ -164,17 +162,7 @@ class _TestePhaseState extends State<Game> {
     listaCartas = List.from(conjuntoDeck.difference(conjuntoRemovidas));
   }
 
-  void buscarJogador2Nome(String gameId) async {
-    var db = FirebaseFirestore.instance;
-    var data;
-    await db
-        .collection('partidas')
-        .doc(gameId)
-        .get()
-        .then((doc) => {data = doc.data()});
 
-    jogador2 = data['jogador2'];
-  }
 
   void listenerDoJogo(String gameId, String jogadorPrincipal) async {
     var db = FirebaseFirestore.instance;
@@ -316,17 +304,29 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Future<List> getJogadoresBD() async {
+    var db = FirebaseFirestore.instance;
+    DocumentSnapshot partida = await db.collection('partidas').doc(this.gameId).get();
+    var dados = partida.data();
+    return [dados['jogador1'], dados['jogador2'], dados['jogadorTurno']];
+  }
+
+  Future<void> inicializarAtributos(context) async{
     final arguments = ModalRoute.of(context).settings.arguments as Map;
     this.jogadorPrincipal = arguments['playerName'];
     this.gameId = arguments['gameId'];
+    var jogadores = await getJogadoresBD();
+    this.jogador1 = jogadores[0];
+    this.jogador2 = jogadores[1];
+    this.jogadorDoTurno = jogadores[2];
+  }
 
-    Carta cartaDaVez =
-        Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
-    
-    buscarJogador2Nome(gameId);
-    listenerDoJogo(gameId, jogadorPrincipal); //
+  @override
+  Widget build(BuildContext context) {
+    inicializarAtributos(context);
+    listenerDoJogo(gameId, jogadorPrincipal);
+
+    Carta cartaDaVez = Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
     
     return new Scaffold(
         resizeToAvoidBottomInset: true,
