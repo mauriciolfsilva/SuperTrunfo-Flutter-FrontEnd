@@ -147,27 +147,29 @@ class _TestePhaseState extends State<Game> {
   var jogadorPrincipal, gameId;
   var cartasNoDeck = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  void passarTurno(String gameId) async {
+  String getNomeJogadorAdversario(){
+    return this.jogador1 == this.jogadorPrincipal ? this.jogador2 : this.jogador1;
+  }
+
+  void passarTurno() async {
+    var jogadorAdversario = getNomeJogadorAdversario();
     var db = FirebaseFirestore.instance;
-    db.collection('partidas').doc(gameId).update({
-      "jogadorTurno": jogador2,
+    db.collection('partidas').doc(this.gameId).update({
+      "jogadorTurno": jogadorAdversario,
     });
   }
 
-  void removerCartas(DocumentSnapshot doc, String gameId) {
-    var cartasRemovidas = doc.data()['cartasRemovidas'];
-    var conjuntoDeck = Set.from(cartasNoDeck);
+  void atualizarCartasNoDeck(DocumentSnapshot partida) {
+    var cartasRemovidas = partida.data()['cartasRemovidas'];
     var conjuntoRemovidas = Set.from(cartasRemovidas);
-
-    cartasNoDeck = List.from(conjuntoDeck.difference(conjuntoRemovidas));
+    var conjuntoDeck = Set.from(this.cartasNoDeck);
+    this.cartasNoDeck = List.from(conjuntoDeck.difference(conjuntoRemovidas));
   }
-
-
 
   Future<void> listenerDoJogo() async {
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(this.gameId).snapshots().listen((result) {
-      removerCartas(result, this.gameId);
+      atualizarCartasNoDeck(result);
       jogadorDoTurno = result.data()['jogadorTurno'];
 
       print("JOGADOR DO TURNO ATUALIZADO: $jogadorDoTurno");
@@ -341,7 +343,8 @@ class _TestePhaseState extends State<Game> {
                     colorFilter:
                         ColorFilter.mode(Colors.black45, BlendMode.darken))),
             child: PageView(children: <Widget>[
-              RaisedButton(
+              ElevatedButton(
+                //onPressed: () {},
                 child: Column(
                   children: [
                     Text(
@@ -374,7 +377,7 @@ class _TestePhaseState extends State<Game> {
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          passarTurno(gameId);
+                          passarTurno();
                         });
                       },
                       style: ElevatedButton.styleFrom(
