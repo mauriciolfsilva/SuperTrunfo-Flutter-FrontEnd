@@ -183,7 +183,150 @@ class _TestePhaseState extends State<TestePhase> {
                             }),
                       )),
                 )),
+            // resultado('Vitória', Colors.cyan, context),
           ]),
         )));
   }
+}
+
+// Função que permite exibir um widget por um tempo depois remover ele.
+void mostraWidgetPorUmTempo({@required BuildContext context, Widget widget}) {
+  OverlayEntry overlayEntry;
+
+  overlayEntry = OverlayEntry(builder: (context) => widget);
+  Overlay.of(context).insert(overlayEntry);
+  Timer(Duration(seconds: 3), () => overlayEntry.remove());
+}
+
+// Widget que mostra o nome dos dois jogadores no inicio da partida
+Widget vsText() {
+  return Center(
+    child: ShowUpAnimation(
+      //suaviza a entrada pra usar tem q por dependencia no pubspec
+      delayStart: Duration(seconds: 0),
+      animationDuration: Duration(seconds: 1),
+      curve: Curves.bounceIn,
+      direction: Direction.vertical,
+      offset: 0.5,
+      child: Material(
+        type: MaterialType.transparency,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Jogador 1   ', //${this.nome} ?
+              style: TextStyle(
+                fontFamily: 'Pacifico',
+                fontSize: 20.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Image.asset(
+              'assets/images/vs.png',
+              width: 50,
+              height: 50,
+              //fit: BoxFit.fill,
+            ),
+            Text(
+              '   Jogador 2', //${this.nome} ?
+              style: TextStyle(
+                fontFamily: 'Pacifico',
+                fontSize: 20.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Widget resultado(String text, MaterialColor cor, BuildContext context) {
+  return Stack(
+    children: <Widget>[
+      BackdropFilter(
+        // deixa o fundo borrado
+        filter: ui.ImageFilter.blur(
+          sigmaX: 8.0,
+          sigmaY: 8.0,
+        ),
+        child: Container(
+          color: Colors.transparent,
+        ),
+      ),
+      Center(
+        child: ShowUpAnimation(
+          //suaviza a entrada pra usar tem q por dependencia no pubspec
+          delayStart: Duration(seconds: 0),
+          animationDuration: Duration(seconds: 1),
+          curve: Curves.bounceIn,
+          direction: Direction.vertical,
+          offset: 0.5,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Container(
+              height: 200,
+              width: 350,
+              child: Card(
+                shadowColor: Colors.blue,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          text,
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 65.0,
+                            color: cor,
+                            fontWeight: FontWeight.bold,
+                            shadows: <Shadow>[
+                              Shadow(
+                                offset: Offset(2, 2),
+                                blurRadius: 7.0,
+                                color: Colors.black38,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Image.asset(
+                          "assets/images/dance-anime-omae-wa-mou-shindeiru.gif",
+                          height: 125.0,
+                          width: 125.0,
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      width: 200,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => MainMenu()));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.pink,
+                        ),
+                        child: Text(
+                          'Jogar novamente',
+                          style: new TextStyle(
+                            fontSize: 20.0,
+                            fontFamily: 'Montserrat',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
 }
