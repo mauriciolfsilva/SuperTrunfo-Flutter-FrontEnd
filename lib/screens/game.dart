@@ -1,5 +1,10 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:grupoazul20211/screens/main-menu.dart';
+import 'package:show_up_animation/show_up_animation.dart';
 
 class Carta extends StatelessWidget {
   int id; // numero atomico
@@ -149,38 +154,66 @@ class _TestePhaseState extends State<Game> {
   var jogadorPrincipal, gameId;
   var cartasNoDeck = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  String getNomeJogadorAdversario(){
-    return this.jogador1 == this.jogadorPrincipal ? this.jogador2 : this.jogador1;
+  double animateWidth(String state) {
+    if (state == 'zoom') return 300;
+    return 100;
+  }
+
+  Alignment animateAlignment(String state) {
+    switch (state) {
+      case 'deck':
+        print(1);
+        return Alignment.bottomRight;
+      case 'draw':
+        print(2);
+        return Alignment.bottomCenter;
+      case 'zoom':
+        print(3);
+        return Alignment.center;
+      default:
+        print(4);
+        return Alignment.bottomCenter;
+    }
+  }
+
+  String getNomeJogadorAdversario() {
+    return this.jogador1 == this.jogadorPrincipal
+        ? this.jogador2
+        : this.jogador1;
   }
 
   void passarTurno() async {
     var jogadorAdversario = getNomeJogadorAdversario();
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(this.gameId).update({
+      "idCartaTurnoJogadorNaoTurno": null,
+      "idCartaTurnoJogadorTurno": null,
+      "atributoTurno": null,
       "jogadorTurno": jogadorAdversario,
     });
   }
 
-  bool jodadorPrincipalEJogadorTurno(){
+  bool jodadorPrincipalEJogadorTurno() {
     return this.jogadorPrincipal == this.jogadorTurno;
   }
 
-  void atualizarAtributoTurno(dadosPartida){
+  void atualizarAtributoTurno(dadosPartida) {
     this.atributoTurno = dadosPartida['atributoTurno'];
   }
-  
-  void atualizarJogadorTurno(dadosPartida){
+
+  void atualizarJogadorTurno(dadosPartida) {
     this.jogadorTurno = dadosPartida['jogadorTurno'];
   }
-  
-  void atualizarPontuacaoJogadores(dadosPartida){
+
+  void atualizarPontuacaoJogadores(dadosPartida) {
     this.pontuacaoJogador1 = dadosPartida['pontuacaoJogador1'];
     this.pontuacaoJogador2 = dadosPartida['pontuacaoJogador2'];
   }
 
-  void atualizarIdsCartasTurnoJogadores(dadosPartida){
+  void atualizarIdsCartasTurnoJogadores(dadosPartida) {
     this.idCartaTurnoJogadorTurno = dadosPartida['idCartaTurnoJogadorTurno'];
-    this.idCartaTurnoJogadorNaoTurno = dadosPartida['idCartaTurnoJogadorNaoTurno'];
+    this.idCartaTurnoJogadorNaoTurno =
+        dadosPartida['idCartaTurnoJogadorNaoTurno'];
   }
 
   void atualizarCartasNoDeck(dadosDaPartida) {
@@ -190,7 +223,7 @@ class _TestePhaseState extends State<Game> {
     this.cartasNoDeck = List.from(conjuntoDeck.difference(conjuntoRemovidas));
   }
 
-  void atualizarAtributos(DocumentSnapshot partida){
+  void atualizarAtributos(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     atualizarCartasNoDeck(dadosPartida);
     atualizarIdsCartasTurnoJogadores(dadosPartida);
@@ -230,32 +263,30 @@ class _TestePhaseState extends State<Game> {
     });
   }
 
-  void solicitarSaqueDeCarta(){
+  void solicitarSaqueDeCarta() {
     // Escrever na tela para o jogador sacar a carta
   }
 
-  void solicitarEscolhaDeAtributoDaCarta(){
+  void solicitarEscolhaDeAtributoDaCarta() {
     // Pedir para o jogador selecionar o atributo da rodada
-  }  
+  }
 
-  void inserirCartaJogadorBD(carta){
-    var atributoBD = jodadorPrincipalEJogadorTurno() ?
-                     "idCartaTurnoJogadorTurno" : "idCartaTurnoJogadorNaoTurno";
+  void inserirCartaJogadorBD(carta) {
+    var atributoBD = jodadorPrincipalEJogadorTurno()
+        ? "idCartaTurnoJogadorTurno"
+        : "idCartaTurnoJogadorNaoTurno";
+    var db = FirebaseFirestore.instance;
+    db.collection('partidas').doc(this.gameId).update({atributoBD: carta});
+  }
+
+  void atualizarCartasRemovidasBD(cartaRemovida) {
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(this.gameId).update({
-      atributoBD: carta
+      "cartasRemovidas": FieldValue.arrayUnion([cartaRemovida])
     });
   }
 
-  void atualizarCartasRemovidasBD(cartaRemovida){
-    var db = FirebaseFirestore.instance;
-    db.collection('partidas').doc(this.gameId).update({
-      "cartasRemovidas":
-          FieldValue.arrayUnion([cartaRemovida])
-    });
-  }
-
-  sortearCarta(List cartas){
+  sortearCarta(List cartas) {
     cartas.shuffle();
     return cartas[0];
   }
@@ -268,7 +299,7 @@ class _TestePhaseState extends State<Game> {
     inserirCartaJogadorBD(this.cartaSorteada);
   }
 
-  void escolherAtributoTurno(){
+  void escolherAtributoTurno() {
     // Preencher no banco qual atributo escolhido pelo jogador do Turno
   }
 
@@ -296,36 +327,15 @@ class _TestePhaseState extends State<Game> {
     //Animacao ou mensagem de aguardando ação do proximo jogador
   }
 
-  double animateWidth(String state) {
-    if (state == 'zoom') return 100;
-    return 1000;
-  }
-
-  Alignment animateAlignment(String state) {
-    switch (state) {
-      case 'deck':
-        print(1);
-        return Alignment.bottomRight;
-      case 'draw':
-        print(2);
-        return Alignment.bottomCenter;
-      case 'zoom':
-        print(3);
-        return Alignment.center;
-      default:
-        print(4);
-        return Alignment.bottomCenter;
-    }
-  }
-
   Future<List> getJogadoresBD() async {
     var db = FirebaseFirestore.instance;
-    DocumentSnapshot partida = await db.collection('partidas').doc(this.gameId).get();
+    DocumentSnapshot partida =
+        await db.collection('partidas').doc(this.gameId).get();
     var dados = partida.data();
     return [dados['jogador1'], dados['jogador2'], dados['jogadorTurno']];
   }
 
-  Future<void> inicializarAtributos(context) async{
+  Future<void> inicializarAtributos(context) async {
     final arguments = ModalRoute.of(context).settings.arguments as Map;
     this.jogadorPrincipal = arguments['playerName'];
     this.gameId = arguments['gameId'];
@@ -339,96 +349,201 @@ class _TestePhaseState extends State<Game> {
   Widget build(BuildContext context) {
     inicializarAtributos(context);
     listenerDoJogo();
-
-    Carta cartaDaVez = Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
-    
     return new Scaffold(
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
           child: Container(
-            height: MediaQuery.of(context).size.height,
-            width: double.infinity,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage('assets/images/Background.png'),
-                    fit: BoxFit.cover,
-                    colorFilter:
-                        ColorFilter.mode(Colors.black45, BlendMode.darken))),
-            child: PageView(children: <Widget>[
-              ElevatedButton(
-                //onPressed: () {},
+              height: MediaQuery.of(context).size.height,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/images/Background.png'),
+                      fit: BoxFit.cover,
+                      colorFilter:
+                          ColorFilter.mode(Colors.black45, BlendMode.darken))),
+              child: Column(children: [
+                RaisedButton(
+                  child: const Text('Sacar carta'),
+                  color: Colors.red,
+                  elevation: 4.0,
+                  splashColor: Colors.yellow,
+                  onPressed: () {
+                    sacarCarta();
+                  },
+                ),
+                RaisedButton(
+                  child: const Text('Passar turno'),
+                  color: Colors.red,
+                  elevation: 4.0,
+                  splashColor: Colors.purple,
+                  onPressed: () {
+                    passarTurno();
+                  },
+                ),
+                AnimatedAlign(
+                    alignment: animateAlignment(animateState),
+                    duration: Duration(seconds: 1),
+                    child: AnimatedContainer(
+                      width: animateWidth(animateState),
+                      duration: Duration(seconds: 1),
+                      child: ElevatedButton(
+                          child: Image.asset('assets/images/1.jpg'),
+                          onPressed: () {
+                            setState(() {
+                              animateState =
+                                  animateState == 'draw' ? 'zoom' : 'draw';
+                            });
+                          }),
+                    )),
+              ])),
+        ));
+  }
+}
+
+class TestePhase extends StatefulWidget {
+  @override
+  _TestePhaseState createState() => _TestePhaseState();
+}
+
+void mostraWidgetPorUmTempo({@required BuildContext context, Widget widget}) {
+  OverlayEntry overlayEntry;
+
+  overlayEntry = OverlayEntry(builder: (context) => widget);
+  Overlay.of(context).insert(overlayEntry);
+  Timer(Duration(seconds: 4), () => overlayEntry.remove());
+}
+
+Widget vsText() {
+  return Center(
+    child: ShowUpAnimation(
+      //suaviza a entrada pra usar tem q por dependencia no pubspec
+      delayStart: Duration(seconds: 0),
+      animationDuration: Duration(seconds: 1),
+      curve: Curves.bounceIn,
+      direction: Direction.vertical,
+      offset: 0.5,
+      child: Material(
+        type: MaterialType.transparency,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Jogador 1   ', //${this.nome} ?
+              style: TextStyle(
+                fontFamily: 'Pacifico',
+                fontSize: 20.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Image.asset(
+              'assets/images/vs.png',
+              width: 50,
+              height: 50,
+              //fit: BoxFit.fill,
+            ),
+            Text(
+              '   Jogador 2', //${this.nome} ?
+              style: TextStyle(
+                fontFamily: 'Pacifico',
+                fontSize: 20.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+// Widget que mostra a tela de vitória ou derrota no fim da partida
+/* pra testar ta na linha 196
+*/
+Widget resultado(String text, MaterialColor cor, BuildContext context) {
+  return Stack(
+    children: <Widget>[
+      BackdropFilter(
+        // deixa o fundo borrado
+        filter: ImageFilter.blur(
+          sigmaX: 8.0,
+          sigmaY: 8.0,
+        ),
+        child: Container(
+          color: Colors.transparent,
+        ),
+      ),
+      Center(
+        child: ShowUpAnimation(
+          //suaviza a entrada pra usar tem q por dependencia no pubspec
+          delayStart: Duration(seconds: 0),
+          animationDuration: Duration(seconds: 1),
+          curve: Curves.bounceIn,
+          direction: Direction.vertical,
+          offset: 0.5,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Container(
+              height: 200,
+              width: 350,
+              child: Card(
+                shadowColor: Colors.blue,
                 child: Column(
-                  children: [
-                    Text(
-                      'Jogador: ' +
-                          jogadorPrincipal +
-                          '\n' +
-                          'GameId: ' +
-                          gameId +
-                          '\n' +
-                          'Cartas ainda disponiveis: ' +
-                          cartasNoDeck.toString(),
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          sacarCarta();
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.orange,
-                      ),
-                      child: Text(
-                        'Sacar Carta',
-                        style: new TextStyle(
-                          fontSize: 20.0,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          text,
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 65.0,
+                            color: cor,
+                            fontWeight: FontWeight.bold,
+                            shadows: <Shadow>[
+                              Shadow(
+                                offset: Offset(2, 2),
+                                blurRadius: 7.0,
+                                color: Colors.black38,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                        Image.asset(
+                          "assets/images/dance-anime-omae-wa-mou-shindeiru.gif",
+                          height: 125.0,
+                          width: 125.0,
+                        ),
+                      ],
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          passarTurno();
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.orange,
-                      ),
-                      child: Text(
-                        'Passar turno',
-                        style: new TextStyle(
-                          fontSize: 20.0,
+                    SizedBox(
+                      width: 200,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => MainMenu()));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.pink,
+                        ),
+                        child: Text(
+                          'Jogar novamente',
+                          style: new TextStyle(
+                            fontSize: 20.0,
+                            fontFamily: 'Montserrat',
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              // ValueListenableBuilder(
-              //   //TODO 2nd: listen playerPointsToAdd
-              //   valueListenable: listaCartas,
-              //   builder: (context, value, widget) {
-              //     //TODO here you can setState or whatever you need
-              //     return Text(
-              //         //TODO e.g.: create condition with playerPointsToAdd's value
-              //         value == 0
-              //             ? 'playerPointsToAdd equals 0 right now'
-              //             : value.toString());
-              //   },
-              // ),
-
-              AnimatedAlign(
-                alignment: animateAlignment(animateState),
-                duration: Duration(seconds: 1),
-                child: AnimatedContainer(
-                  width: animateWidth(animateState),
-                  duration: Duration(seconds: 1),
-                  child: cartaDaVez,
-                ),
-              )
-            ]),
+            ),
           ),
-        ));
-  }
+        ),
+      ),
+    ],
+  );
 }
