@@ -299,8 +299,13 @@ class _TestePhaseState extends State<Game> {
     inserirCartaJogadorBD(this.cartaSorteada);
   }
 
-  void escolherAtributoTurno() {
-    // Preencher no banco qual atributo escolhido pelo jogador do Turno
+  void escolherAtributoTurno(atributo) {
+    if(jogadorPrincipal == jogadorTurno){
+      var db = FirebaseFirestore.instance;
+      db.collection('partidas').doc(this.gameId).update({
+        "atributoTurno": atributo
+      });
+    }
   }
 
   void calcularPontuacaoRodada() {
