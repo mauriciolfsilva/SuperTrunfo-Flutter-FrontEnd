@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grupoazul20211/screens/main-menu.dart';
 import 'package:show_up_animation/show_up_animation.dart';
+import '../consts/Cards.dart' as CardsAtributtes;
 
 class Carta extends StatelessWidget {
   int id; // numero atomico
@@ -152,7 +153,7 @@ class _TestePhaseState extends State<Game> {
   var atributoTurno;
   int cartaSorteada;
   var jogadorPrincipal, gameId;
-  var cartasNoDeck = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  var cartasNoDeck = [1, 2, 3];
 
   double animateWidth(String state) {
     if (state == 'zoom') return 300;
@@ -183,6 +184,7 @@ class _TestePhaseState extends State<Game> {
   }
 
   void passarTurno() async {
+    calcularPontuacaoRodada();
     var jogadorAdversario = getNomeJogadorAdversario();
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(this.gameId).update({
@@ -191,6 +193,7 @@ class _TestePhaseState extends State<Game> {
       "atributoTurno": null,
       "jogadorTurno": jogadorAdversario,
     });
+    this.cartaSorteada = null;
   }
 
   bool jodadorPrincipalEJogadorTurno() {
@@ -294,21 +297,52 @@ class _TestePhaseState extends State<Game> {
   //Essa função deve ser chamada quando o jogador
   //desejar selecionar uma nova carta do baralho
   void sacarCarta() {
-    this.cartaSorteada = sortearCarta(this.cartasNoDeck);
-    atualizarCartasRemovidasBD(this.cartaSorteada);
-    inserirCartaJogadorBD(this.cartaSorteada);
+    if (this.cartaSorteada == null) {
+      this.cartaSorteada = sortearCarta(this.cartasNoDeck);
+      atualizarCartasRemovidasBD(this.cartaSorteada);
+      inserirCartaJogadorBD(this.cartaSorteada);
+      print(this.cartaSorteada);
+      var carta = CardsAtributtes.properties[this.cartaSorteada];
+
+      showMyDialog('Sacando a carta',
+          'Carta Sorteada ' + this.cartaSorteada.toString(), carta['nome']);
+    }
   }
 
   void escolherAtributoTurno(atributo) {
-    if(jogadorPrincipal == jogadorTurno){
+    if (jogadorPrincipal == jogadorTurno) {
       var db = FirebaseFirestore.instance;
-      db.collection('partidas').doc(this.gameId).update({
-        "atributoTurno": atributo
-      });
+      db
+          .collection('partidas')
+          .doc(this.gameId)
+          .update({"atributoTurno": atributo});
     }
   }
 
   void calcularPontuacaoRodada() {
+    if (jogadorPrincipal == jogadorTurno) {
+      var cartaJogadorPrincipal =
+          CardsAtributtes.properties[idCartaTurnoJogadorTurno];
+      var cartaJogadorAdversario =
+          CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno];
+
+      var principalVencedor =
+          cartaJogadorPrincipal[atributoTurno] > cartaJogadorAdversario;
+      var updateQuery;
+
+      if (jogadorPrincipal == jogador1 && principalVencedor) {
+        updateQuery = {"pontuacaoJogador1": FieldValue.increment(1)};
+      } else if (jogadorPrincipal == jogador2 && principalVencedor) {
+        updateQuery = {"pontuacaoJogador2": FieldValue.increment(1)};
+      } else if (jogadorPrincipal == jogador1 && !principalVencedor) {
+        updateQuery = {"pontuacaoJogador2": FieldValue.increment(1)};
+      } else if (jogadorPrincipal == jogador2 && !principalVencedor) {
+        updateQuery = {"pontuacaoJogador1": FieldValue.increment(1)};
+      }
+
+      var db = FirebaseFirestore.instance;
+      db.collection('partidas').doc(this.gameId).update(updateQuery);
+    }
     // calcular baseado nos 2 ids de cartas escolhidas no banco e pelo atributo escolhido quem venceu a rodada,
     // somar ponto no banco para o jogador que venceu e zerar demais atributos de jogo no banco, como ids e atributo escolhido.
     // passar a vez para o proximo jogador
@@ -350,6 +384,35 @@ class _TestePhaseState extends State<Game> {
     this.jogadorTurno = jogadores[2];
   }
 
+  Future<void> showMyDialog(
+      String title, String firstLine, String secondLine) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(firstLine),
+                Text(secondLine),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Approve'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     inicializarAtributos(context);
@@ -385,6 +448,67 @@ class _TestePhaseState extends State<Game> {
                     passarTurno();
                   },
                 ),
+                Column(
+                    children: (jogadorPrincipal == jogadorTurno)
+                        ? [
+                            RaisedButton(
+                              child: const Text('Escolher Atributo: Raio'),
+                              color: Colors.blue,
+                              elevation: 4.0,
+                              splashColor: Colors.purple,
+                              onPressed: () {
+                                escolherAtributoTurno('raio');
+                              },
+                            ),
+                            RaisedButton(
+                              child: const Text('Escolher Atributo: Densidade'),
+                              color: Colors.blue,
+                              elevation: 4.0,
+                              splashColor: Colors.purple,
+                              onPressed: () {
+                                escolherAtributoTurno('densidade');
+                              },
+                            ),
+                            RaisedButton(
+                              child: const Text('Escolher Atributo: Fusão'),
+                              color: Colors.blue,
+                              elevation: 4.0,
+                              splashColor: Colors.purple,
+                              onPressed: () {
+                                escolherAtributoTurno('fusao');
+                              },
+                            ),
+                            RaisedButton(
+                              child: const Text('Escolher Atributo: Energia'),
+                              color: Colors.blue,
+                              elevation: 4.0,
+                              splashColor: Colors.purple,
+                              onPressed: () {
+                                escolherAtributoTurno('fusao');
+                              },
+                            ),
+                            RaisedButton(
+                              child:
+                                  const Text('Escolher Atributo: Negatividade'),
+                              color: Colors.blue,
+                              elevation: 4.0,
+                              splashColor: Colors.purple,
+                              onPressed: () {
+                                escolherAtributoTurno('negatividade');
+                              },
+                            ),
+                            RaisedButton(
+                              child:
+                                  const Text('Escolher Atributo: Abundancia'),
+                              color: Colors.blue,
+                              elevation: 4.0,
+                              splashColor: Colors.purple,
+                              onPressed: () {
+                                escolherAtributoTurno('abundancia');
+                              },
+                            )
+                          ]
+                        : []),
                 AnimatedAlign(
                     alignment: animateAlignment(animateState),
                     duration: Duration(seconds: 1),
