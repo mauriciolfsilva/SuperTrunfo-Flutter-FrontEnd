@@ -203,12 +203,12 @@ class _TestePhaseState extends State<Game> {
   }
 
   void iniciarTemporizadoresDoJogo(){
-    /*
+    
     this.timeoutTurno = Timer(Duration(seconds: 60), (){
       //this.timeoutSugestaoUsuario.cancel();
       print("USUÁRIO DESISTIU DO JOGO!");  
     });
-    */
+    
   }
 
   String getNomeJogadorAdversario() {
