@@ -154,6 +154,7 @@ class _TestePhaseState extends State<Game> {
   int cartaSorteada;
   var jogadorPrincipal, gameId;
   var cartasNoDeck = [1, 2, 3];
+  var timeoutTurno, timeoutSugestaoUsuario;
 
   double animateWidth(String state) {
     if (state == 'zoom') return 300;
@@ -177,6 +178,49 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
+  void solicitarSaqueDeCarta() {
+    // Escrever na tela para o jogador sacar a carta
+    print("SAQUE UMA CARTA");
+  }
+
+  void solicitarEscolhaDeAtributoDaCarta() {
+    // Pedir para o jogador selecionar o atributo da rodada
+    print("ESCOLHA O ATRIBUTO CARTA");
+  }
+
+  void esperarJogadorAdversarioJogar() {
+    //Animacao ou mensagem de aguardando ação do proximo jogador
+    print("ESPERE O OUTRO JOGADOR JOGAR");
+  }
+  
+  bool jodadorPrincipalEJogadorTurno() {
+    return this.jogadorPrincipal == this.jogadorTurno;
+  }
+
+  bool atributoTurnoEscolhido(){
+    return this.atributoTurno != null;
+  }
+
+  bool jogadorPrincipalSacouCarta(){
+    return this.cartaSorteada != null;
+  }
+
+  void iniciarTemporizadoresDoJogo(){
+    Timer.periodic(Duration(seconds: 10), (timer){
+      this.timeoutSugestaoUsuario = timer;
+      if(!jogadorPrincipalSacouCarta()) solicitarSaqueDeCarta();
+      else if(jodadorPrincipalEJogadorTurno() && !atributoTurnoEscolhido()) solicitarEscolhaDeAtributoDaCarta();
+      else esperarJogadorAdversarioJogar();
+      
+      print("ALERTAR USUÁRIO SOBRE O QUE FAZER!");
+    });
+    
+    this.timeoutTurno = Timer(Duration(seconds: 60), (){
+      this.timeoutSugestaoUsuario.cancel();
+      print("USUÁRIO DESISTIU DO JOGO!");
+    });
+  }
+
   String getNomeJogadorAdversario() {
     return this.jogador1 == this.jogadorPrincipal
         ? this.jogador2
@@ -194,10 +238,6 @@ class _TestePhaseState extends State<Game> {
       "jogadorTurno": jogadorAdversario,
     });
     this.cartaSorteada = null;
-  }
-
-  bool jodadorPrincipalEJogadorTurno() {
-    return this.jogadorPrincipal == this.jogadorTurno;
   }
 
   void atualizarAtributoTurno(dadosPartida) {
@@ -264,14 +304,6 @@ class _TestePhaseState extends State<Game> {
       }
       */
     });
-  }
-
-  void solicitarSaqueDeCarta() {
-    // Escrever na tela para o jogador sacar a carta
-  }
-
-  void solicitarEscolhaDeAtributoDaCarta() {
-    // Pedir para o jogador selecionar o atributo da rodada
   }
 
   void inserirCartaJogadorBD(carta) {
@@ -348,24 +380,6 @@ class _TestePhaseState extends State<Game> {
     // passar a vez para o proximo jogador
   }
 
-  void solicitarSaqueDeCartaNaoTurno() {
-    // Escrever na tela para o jogador sacar a carta
-    // Preencher no banco qual o id da carta selecionada pelo jogador do Nao turno
-    // preencher no banco qual id de carta foi removida pelo jogador
-  }
-
-  void esperarJogadorNaoTurnoRetirarCarta() {
-    //Animacao ou mensagem de aguardando ação do proximo jogador
-  }
-
-  void esperarJogador1CalcularPontuacao() {
-    //Animacao ou mensagem de aguardando ação do proximo jogador
-  }
-
-  void esperarJogadorTurnoRetirarCarta() {
-    //Animacao ou mensagem de aguardando ação do proximo jogador
-  }
-
   Future<List> getJogadoresBD() async {
     var db = FirebaseFirestore.instance;
     DocumentSnapshot partida =
@@ -417,6 +431,7 @@ class _TestePhaseState extends State<Game> {
   Widget build(BuildContext context) {
     inicializarAtributos(context);
     listenerDoJogo();
+    iniciarTemporizadoresDoJogo();
     return new Scaffold(
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
