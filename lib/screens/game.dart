@@ -155,6 +155,7 @@ class _TestePhaseState extends State<Game> {
   var jogadorPrincipal, gameId;
   var cartasNoDeck = [1, 2, 3];
   var timeoutTurno, timeoutSugestaoUsuario;
+  var tooltip;
 
   double animateWidth(String state) {
     if (state == 'zoom') return 300;
@@ -179,6 +180,7 @@ class _TestePhaseState extends State<Game> {
   }
 
   void solicitarSaqueDeCarta() {
+    setState(() => this.tooltip = "SAQUE UMA CARTA");
     // Escrever na tela para o jogador sacar a carta
     print("SAQUE UMA CARTA");
   }
@@ -436,6 +438,7 @@ class _TestePhaseState extends State<Game> {
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
           child: Container(
+              padding: EdgeInsets.symmetric(vertical: 100.0),
               height: MediaQuery.of(context).size.height,
               width: double.infinity,
               decoration: BoxDecoration(
@@ -445,6 +448,7 @@ class _TestePhaseState extends State<Game> {
                       colorFilter:
                           ColorFilter.mode(Colors.black45, BlendMode.darken))),
               child: Column(children: [
+                Text("${this.tooltip}", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                 RaisedButton(
                   child: const Text('Sacar carta'),
                   color: Colors.red,
