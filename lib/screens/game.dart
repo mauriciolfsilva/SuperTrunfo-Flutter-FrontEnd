@@ -484,7 +484,7 @@ class _TestePhaseState extends State<Game> {
                               elevation: 4.0,
                               splashColor: Colors.purple,
                               onPressed: () {
-                                escolherAtributoTurno('fusao');
+                                escolherAtributoTurno('energia');
                               },
                             ),
                             RaisedButton(
