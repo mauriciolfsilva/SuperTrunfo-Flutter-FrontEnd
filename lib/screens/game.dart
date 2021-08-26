@@ -155,7 +155,7 @@ class _TestePhaseState extends State<Game> {
   var jogadorPrincipal, gameId;
   var cartasNoDeck = [1, 2, 3];
   var timeoutTurno, timeoutSugestaoUsuario;
-  var tooltip;
+  var sugestaoUsuario;
 
   double animateWidth(String state) {
     if (state == 'zoom') return 300;
@@ -179,22 +179,6 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
-  void solicitarSaqueDeCarta() {
-    setState(() => this.tooltip = "SAQUE UMA CARTA");
-    // Escrever na tela para o jogador sacar a carta
-    print("SAQUE UMA CARTA");
-  }
-
-  void solicitarEscolhaDeAtributoDaCarta() {
-    // Pedir para o jogador selecionar o atributo da rodada
-    print("ESCOLHA O ATRIBUTO CARTA");
-  }
-
-  void esperarJogadorAdversarioJogar() {
-    //Animacao ou mensagem de aguardando ação do proximo jogador
-    print("ESPERE O OUTRO JOGADOR JOGAR");
-  }
-  
   bool jodadorPrincipalEJogadorTurno() {
     return this.jogadorPrincipal == this.jogadorTurno;
   }
@@ -207,20 +191,24 @@ class _TestePhaseState extends State<Game> {
     return this.cartaSorteada != null;
   }
 
+  String getSugestaoUsuario(){
+    if(!jogadorPrincipalSacouCarta()) return "Saque uma carta!";
+    else if(jodadorPrincipalEJogadorTurno() && !atributoTurnoEscolhido()) return "Escolha o atributo da carta!";
+    else return "Espere o outro jogador jogar!";
+  }
+
+  void atualizarSugestaoUsuario(){
+    String sugestaoUsuario = getSugestaoUsuario();
+    setState(() => this.sugestaoUsuario = "Dica: $sugestaoUsuario"); 
+  }
+
   void iniciarTemporizadoresDoJogo(){
-    Timer.periodic(Duration(seconds: 10), (timer){
-      this.timeoutSugestaoUsuario = timer;
-      if(!jogadorPrincipalSacouCarta()) solicitarSaqueDeCarta();
-      else if(jodadorPrincipalEJogadorTurno() && !atributoTurnoEscolhido()) solicitarEscolhaDeAtributoDaCarta();
-      else esperarJogadorAdversarioJogar();
-      
-      print("ALERTAR USUÁRIO SOBRE O QUE FAZER!");
-    });
-    
+    /*
     this.timeoutTurno = Timer(Duration(seconds: 60), (){
-      this.timeoutSugestaoUsuario.cancel();
-      print("USUÁRIO DESISTIU DO JOGO!");
+      //this.timeoutSugestaoUsuario.cancel();
+      print("USUÁRIO DESISTIU DO JOGO!");  
     });
+    */
   }
 
   String getNomeJogadorAdversario() {
@@ -281,30 +269,7 @@ class _TestePhaseState extends State<Game> {
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(this.gameId).snapshots().listen((result) {
       atualizarAtributos(result);
-
-      /*
-      if (jodadorPrincipalEJogadorTurno() &&
-          idCartaTurnoJogadorTurno == null) {
-        solicitarSaqueDeCarta();
-      } else if (jogadorTurno == jogadorPrincipal &&
-          idCartaTurnoJogadorTurno != null) {
-        if (idCartaTurnoJogadorNaoTurno != null) {
-          calcularPontuacaoRodada();
-        } else {
-          esperarJogadorNaoTurnoRetirarCarta();
-        }
-      } else if (jogadorTurno != jogadorPrincipal &&
-          idCartaTurnoJogadorNaoTurno == null) {
-        solicitarSaqueDeCartaNaoTurno();
-      } else if (jogadorTurno != jogadorPrincipal &&
-          idCartaTurnoJogadorNaoTurno != null) {
-        if (idCartaTurnoJogadorTurno != null) {
-          esperarJogador1CalcularPontuacao();
-        } else {
-          esperarJogadorTurnoRetirarCarta();
-        }
-      }
-      */
+      atualizarSugestaoUsuario();
     });
   }
 
@@ -448,7 +413,7 @@ class _TestePhaseState extends State<Game> {
                       colorFilter:
                           ColorFilter.mode(Colors.black45, BlendMode.darken))),
               child: Column(children: [
-                Text("${this.tooltip}", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                Text("${this.sugestaoUsuario}", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                 RaisedButton(
                   child: const Text('Sacar carta'),
                   color: Colors.red,
