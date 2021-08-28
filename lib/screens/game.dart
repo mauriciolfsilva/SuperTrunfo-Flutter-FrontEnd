@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grupoazul20211/screens/main-menu.dart';
 import 'package:show_up_animation/show_up_animation.dart';
+
 import '../consts/Cards.dart' as CardsAtributtes;
 
 class Carta extends StatelessWidget {
@@ -156,6 +157,7 @@ class _TestePhaseState extends State<Game> {
   var cartasNoDeck = [1, 2, 3];
   var timeoutTurno, timeoutSugestaoUsuario;
   var sugestaoUsuario;
+  bool firstLoad = false;
 
   double animateWidth(String state) {
     if (state == 'zoom') return 300;
@@ -183,32 +185,33 @@ class _TestePhaseState extends State<Game> {
     return this.jogadorPrincipal == this.jogadorTurno;
   }
 
-  bool atributoTurnoEscolhido(){
+  bool atributoTurnoEscolhido() {
     return this.atributoTurno != null;
   }
 
-  bool jogadorPrincipalSacouCarta(){
+  bool jogadorPrincipalSacouCarta() {
     return this.cartaSorteada != null;
   }
 
-  String getSugestaoUsuario(){
-    if(!jogadorPrincipalSacouCarta()) return "Saque uma carta!";
-    else if(jodadorPrincipalEJogadorTurno() && !atributoTurnoEscolhido()) return "Escolha o atributo da carta!";
-    else return "Espere o outro jogador jogar!";
+  String getSugestaoUsuario() {
+    if (!jogadorPrincipalSacouCarta())
+      return "Saque uma carta!";
+    else if (jodadorPrincipalEJogadorTurno() && !atributoTurnoEscolhido())
+      return "Escolha o atributo da carta!";
+    else
+      return "Espere o outro jogador jogar!";
   }
 
-  void atualizarSugestaoUsuario(){
+  void atualizarSugestaoUsuario() {
     String sugestaoUsuario = getSugestaoUsuario();
-    setState(() => this.sugestaoUsuario = "Dica: $sugestaoUsuario"); 
+    setState(() => this.sugestaoUsuario = "Dica: $sugestaoUsuario");
   }
 
-  void iniciarTemporizadoresDoJogo(){
-    
-    this.timeoutTurno = Timer(Duration(seconds: 60), (){
+  void iniciarTemporizadoresDoJogo() {
+    this.timeoutTurno = Timer(Duration(seconds: 60), () {
       //this.timeoutSugestaoUsuario.cancel();
-      print("USUÁRIO DESISTIU DO JOGO!");  
+      print("USUÁRIO DESISTIU DO JOGO!");
     });
-    
   }
 
   String getNomeJogadorAdversario() {
@@ -265,11 +268,16 @@ class _TestePhaseState extends State<Game> {
     atualizarAtributoTurno(dadosPartida);
   }
 
+  void verificarSePartidaFinalizada(DocumentSnapshot partida) {
+    //verifica se algum usuário já chegou aos 10 pontos se sim finaliza a partida para os dois usuários.
+  }
+
   Future<void> listenerDoJogo() async {
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(this.gameId).snapshots().listen((result) {
       atualizarAtributos(result);
       atualizarSugestaoUsuario();
+      verificarSePartidaFinalizada(result);
     });
   }
 
@@ -325,8 +333,8 @@ class _TestePhaseState extends State<Game> {
       var cartaJogadorAdversario =
           CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno];
 
-      var principalVencedor =
-          cartaJogadorPrincipal[atributoTurno] > cartaJogadorAdversario;
+      var principalVencedor = cartaJogadorPrincipal[atributoTurno] >
+          cartaJogadorAdversario[atributoTurno];
       var updateQuery;
 
       if (jogadorPrincipal == jogador1 && principalVencedor) {
@@ -396,9 +404,12 @@ class _TestePhaseState extends State<Game> {
 
   @override
   Widget build(BuildContext context) {
-    inicializarAtributos(context);
-    listenerDoJogo();
-    iniciarTemporizadoresDoJogo();
+    if (!firstLoad) {
+      inicializarAtributos(context);
+      listenerDoJogo();
+      iniciarTemporizadoresDoJogo();
+      firstLoad = true;
+    }
     return new Scaffold(
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
@@ -413,7 +424,9 @@ class _TestePhaseState extends State<Game> {
                       colorFilter:
                           ColorFilter.mode(Colors.black45, BlendMode.darken))),
               child: Column(children: [
-                Text("${this.sugestaoUsuario}", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                Text("${this.sugestaoUsuario}",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white)),
                 RaisedButton(
                   child: const Text('Sacar carta'),
                   color: Colors.red,
