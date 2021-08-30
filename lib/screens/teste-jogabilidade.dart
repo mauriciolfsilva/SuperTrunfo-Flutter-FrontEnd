@@ -18,7 +18,11 @@ class TestePhase extends StatefulWidget {
 
 class _TestePhaseState extends State<TestePhase> {
   // variavel "inicio" indica que acabamos de iniciar o jogo
-  int inicio = 1;
+  bool inicio = true;
+
+  // estados do jogo
+  bool gameWin = false; // true quando vence
+  bool gameFinish = false; // true quando acaba o jogo -> true p/ ver animação de derrota/vitória
 
   String p1AnimateState = 'deck';
   String p2AnimateState = 'deck';
@@ -103,9 +107,9 @@ class _TestePhaseState extends State<TestePhase> {
   Widget build(BuildContext context) {
     //chama o metodo mostraWidgetPorUmTempo no inicio
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (inicio == 1) {
+      if (inicio) {
         mostraWidgetPorUmTempo(context: context, widget: vsText());
-        inicio = 0;
+        inicio = false;
       }
     });
 
@@ -183,7 +187,7 @@ class _TestePhaseState extends State<TestePhase> {
                             }),
                       )),
                 )),
-            // resultado('Vitória', Colors.cyan, context),
+            gameFinish ? resultado(gameWin, context) : Container(),
           ]),
         )));
   }
@@ -244,7 +248,21 @@ Widget vsText() {
   );
 }
 
-Widget resultado(String text, MaterialColor cor, BuildContext context) {
+
+Widget resultado(bool gameWin, BuildContext context) {
+  String text;
+  MaterialColor cor;
+  String imgurl;
+  if (gameWin){
+    text = "Vitória";
+    cor = Colors.cyan;
+    imgurl = "assets/images/dance-anime-omae-wa-mou-shindeiru.gif";
+  }
+  else{
+    text = "Derrota";
+    cor = Colors.cyan;
+    imgurl = "assets/images/loser.gif"; // mudar
+  }
   return Stack(
     children: <Widget>[
       BackdropFilter(
@@ -295,9 +313,9 @@ Widget resultado(String text, MaterialColor cor, BuildContext context) {
                           ),
                         ),
                         Image.asset(
-                          "assets/images/dance-anime-omae-wa-mou-shindeiru.gif",
-                          height: 125.0,
-                          width: 125.0,
+                          "$imgurl",
+                          height: 120.0,
+                          width: 120.0,
                         ),
                       ],
                     ),
