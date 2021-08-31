@@ -19,126 +19,150 @@ class Carta extends StatelessWidget {
   double abundancia;
   Carta(this.id, this.nome, this.densidade, this.raio, this.fusao, this.energia,
       this.negatividade, this.abundancia);
+
   @override
   Widget build(BuildContext context) {
-    return Stack(alignment: Alignment.center, children: [
-      Container(
-          width: 300,
-          height: 400,
-          decoration: BoxDecoration(color: Colors.red),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              CircleAvatar(
-                radius: 50.0,
-                backgroundImage: AssetImage('assets/images/${this.id}.jpg'),
-              ),
-              Text(
-                '${this.nome}',
-                style: TextStyle(
-                  fontFamily: 'Pacifico',
-                  fontSize: 20.0,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                '${this.id}',
-                style: TextStyle(
-                  fontFamily: 'Source Sans Pro',
-                  color: Colors.teal.shade100,
-                  fontSize: 16.0,
-                  letterSpacing: 2.5,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(
-                  width: 260,
-                  height: 30,
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(5)),
-                  child: Row(children: <Widget>[
-                    Icon(Icons.star, color: Colors.blue, size: 20),
-                    Container(
-                        margin: EdgeInsets.only(left: 10),
-                        child: Text(
-                          'Densidade: ${this.densidade} g/cm3',
-                          style: TextStyle(
-                            color: Colors.teal.shade900,
-                            fontFamily: 'Source Sans Pro',
-                            fontSize: 14.0,
-                          ),
-                        ))
-                  ])),
-              Container(
-                  width: 260,
-                  height: 30,
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(5)),
-                  child: Row(children: <Widget>[
-                    Icon(Icons.star, color: Colors.green, size: 20),
-                    Container(
-                        margin: EdgeInsets.only(left: 10),
-                        child: Text(
-                          'Raio covalente: ${this.raio} pm',
-                          style: TextStyle(
-                            color: Colors.teal.shade900,
-                            fontFamily: 'Source Sans Pro',
-                            fontSize: 14.0,
-                          ),
-                        ))
-                  ])),
-              Container(
-                  width: 260,
-                  height: 30,
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(5)),
-                  child: Row(children: <Widget>[
-                    Icon(Icons.star, color: Colors.teal.shade900, size: 20),
-                    Container(
-                        margin: EdgeInsets.only(left: 10),
-                        child: Text(
-                          'Ponto de fusão: ${this.fusao}°C',
-                          style: TextStyle(
-                            color: Colors.teal.shade900,
-                            fontFamily: 'Source Sans Pro',
-                            fontSize: 14.0,
-                          ),
-                        ))
-                  ])),
-              Container(
-                  width: 260,
-                  height: 30,
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(5)),
-                  child: Row(children: <Widget>[
-                    Icon(Icons.star, color: Colors.teal.shade900, size: 20),
-                    Container(
-                        margin: EdgeInsets.only(left: 10),
-                        child: Text(
-                          'Energia de ionização: ${this.energia} kJ/mol',
-                          style: TextStyle(
-                            color: Colors.teal.shade900,
-                            fontFamily: 'Source Sans Pro',
-                            fontSize: 12.0,
-                          ),
-                        ))
-                  ])),
-            ],
-          ))
-    ]);
+    return FittedBox(
+        fit: BoxFit.fill,
+        child: Stack(alignment: Alignment.center, children: [
+          Container(
+              width: 300,
+              height: 400,
+              decoration: BoxDecoration(
+                  color: Colors.red, borderRadius: BorderRadius.circular(5)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: AssetImage('assets/images/${this.id}.jpg'),
+                  ),
+                  Visibility(
+                    visible: true,
+                    child: Text(
+                      '${this.nome}',
+                      style: TextStyle(
+                        fontFamily: 'Pacifico',
+                        fontSize: 20.0,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: true,
+                    child: Text(
+                      '${this.id}',
+                      style: TextStyle(
+                        fontFamily: 'Source Sans Pro',
+                        color: Colors.teal.shade100,
+                        fontSize: 16.0,
+                        letterSpacing: 2.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: true,
+                    child: Container(
+                        width: 260,
+                        height: 30,
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5)),
+                        child: Row(children: <Widget>[
+                          Icon(Icons.star, color: Colors.blue, size: 20),
+                          Container(
+                              margin: EdgeInsets.only(left: 10),
+                              child: Text(
+                                'Densidade: ${this.densidade} g/cm3',
+                                style: TextStyle(
+                                  color: Colors.teal.shade900,
+                                  fontFamily: 'Source Sans Pro',
+                                  fontSize: 14.0,
+                                ),
+                              ))
+                        ])),
+                  ),
+                  Visibility(
+                    visible: true,
+                    child: Container(
+                        width: 260,
+                        height: 30,
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5)),
+                        child: Row(children: <Widget>[
+                          Icon(Icons.star, color: Colors.green, size: 20),
+                          Container(
+                              margin: EdgeInsets.only(left: 10),
+                              child: Text(
+                                'Raio covalente: ${this.raio} pm',
+                                style: TextStyle(
+                                  color: Colors.teal.shade900,
+                                  fontFamily: 'Source Sans Pro',
+                                  fontSize: 14.0,
+                                ),
+                              ))
+                        ])),
+                  ),
+                  Visibility(
+                    visible: true,
+                    child: Container(
+                        width: 260,
+                        height: 30,
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5)),
+                        child: Row(children: <Widget>[
+                          Icon(Icons.star,
+                              color: Colors.teal.shade900, size: 20),
+                          Container(
+                              margin: EdgeInsets.only(left: 10),
+                              child: Text(
+                                'Ponto de fusão: ${this.fusao}°C',
+                                style: TextStyle(
+                                  color: Colors.teal.shade900,
+                                  fontFamily: 'Source Sans Pro',
+                                  fontSize: 14.0,
+                                ),
+                              ))
+                        ])),
+                  ),
+                  Visibility(
+                    visible: true,
+                    child: Container(
+                        width: 260,
+                        height: 30,
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.symmetric(horizontal: 15),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5)),
+                        child: Row(children: <Widget>[
+                          Icon(Icons.star,
+                              color: Colors.teal.shade900, size: 20),
+                          Container(
+                              margin: EdgeInsets.only(left: 10),
+                              child: Text(
+                                'Energia de ionização: ${this.energia} kJ/mol',
+                                style: TextStyle(
+                                  color: Colors.teal.shade900,
+                                  fontFamily: 'Source Sans Pro',
+                                  fontSize: 12.0,
+                                ),
+                              ))
+                        ])),
+                  ),
+                ],
+              ))
+        ]));
   }
 }
 
