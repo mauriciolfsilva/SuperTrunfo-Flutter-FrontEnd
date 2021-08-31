@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:grupoazul20211/screens/main-menu.dart';
 import 'package:show_up_animation/show_up_animation.dart';
@@ -171,6 +172,21 @@ class Game extends StatefulWidget {
 }
 
 class _TestePhaseState extends State<Game> {
+  // variavel "inicio" indica que acabamos de iniciar o jogo
+  bool inicio = true;
+
+  // estados do jogo
+  bool gameWin = false; // true quando vence
+  bool gameFinish =
+      false; // true quando acaba o jogo -> true p/ ver animação de derrota/vitória
+
+  String p1AnimateState = 'deck';
+  String p2AnimateState = 'deck';
+  int p1Score = 0;
+  int p2Score = 0;
+
+  GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
+
   String animateState = 'deck';
   String jogador1, jogador2, jogadorTurno;
   int pontuacaoJogador1, pontuacaoJogador2;
@@ -184,8 +200,75 @@ class _TestePhaseState extends State<Game> {
   bool firstLoad = false;
 
   double animateWidth(String state) {
-    if (state == 'zoom') return 300;
-    return 100;
+    if (state == 'zoom')
+      return 315;
+    else if (state == 'display')
+      return 190;
+    else if (state == 'showCards') return 190;
+    return 150;
+  }
+
+  double animateHeight(String state) {
+    if (state == 'zoom')
+      return 400;
+    else if (state == 'display')
+      return 290;
+    else if (state == 'showCards') return 290;
+    return 150;
+  }
+
+  Alignment p1AnimateAlignment(String state) {
+    switch (state) {
+      case 'deck':
+        return Alignment.bottomRight;
+      case 'draw':
+        return Alignment.bottomCenter;
+      case 'zoom':
+        return Alignment.center;
+      case 'display':
+        return Alignment.centerRight;
+      case 'showCards':
+        return Alignment.centerRight;
+    }
+  }
+
+  Alignment p2AnimateAlignment(String state) {
+    switch (state) {
+      case 'deck':
+        return Alignment.topLeft;
+      case 'draw':
+        return Alignment.topCenter;
+      case 'display':
+        return Alignment.centerLeft;
+      case 'showCards':
+        return Alignment.centerLeft;
+    }
+  }
+
+  String p1UpdateState(String state) {
+    if (state == "draw")
+      return "zoom";
+    else if (state == "zoom")
+      return "display";
+    else if (state == "display")
+      return "showCards";
+    else if (state == "deck")
+      return "draw";
+    else
+      return "deck";
+  }
+
+  String p2UpdateState(String state, String p1State) {
+    if (state == "deck" && p1State == "draw")
+      return "draw";
+    else if (state == "draw" && p1State == "zoom")
+      return "draw";
+    else if (state == "draw" && p1State == "display")
+      return "display";
+    else if (state == "display" && p1State == "showCards")
+      return "showCards";
+    else
+      return "deck";
   }
 
   Alignment animateAlignment(String state) {
@@ -434,6 +517,17 @@ class _TestePhaseState extends State<Game> {
       iniciarTemporizadoresDoJogo();
       firstLoad = true;
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (inicio) {
+        mostraWidgetPorUmTempo(context: context, widget: vsText());
+        inicio = false;
+      }
+    });
+
+    Carta cartaDaVez =
+        Carta(1, "Hélio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
+
     return new Scaffold(
         resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
