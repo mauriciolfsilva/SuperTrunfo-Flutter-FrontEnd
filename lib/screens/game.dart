@@ -414,26 +414,51 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
+  void atualizarEstadoDaAnimacaoNoBanco(bool souJogador1, String estado) {
+    var db = FirebaseFirestore.instance;
+    if (souJogador1) {
+      db
+          .collection('partidas')
+          .doc(gameId)
+          .update({"estadoAnimacaoJogador1": estado});
+    } else {
+      db
+          .collection('partidas')
+          .doc(gameId)
+          .update({"estadoAnimacaoJogador2": estado});
+    }
+  }
+
   String p1UpdateState(String state) {
-    if (state == "draw")
+    var souJogador1 = jogadorPrincipal == jogador1 ? true : false;
+    if (state == "draw") {
+      atualizarEstadoDaAnimacaoNoBanco(souJogador1, "zoom");
       return "zoom";
-    else if (state == "zoom")
+    } else if (state == "zoom") {
+      atualizarEstadoDaAnimacaoNoBanco(souJogador1, "display");
       return "display";
-    else if (state == "display" &&
+    } else if (state == "display" &&
         idCartaTurnoJogadorNaoTurno != null &&
         idCartaTurnoJogadorTurno != null &&
-        atributoTurno != null)
+        atributoTurno != null) {
+      atualizarEstadoDaAnimacaoNoBanco(souJogador1, "showCards");
       return "showCards";
-    else if (state == "deck") {
+    } else if (state == "deck") {
       sacarCarta();
+      atualizarEstadoDaAnimacaoNoBanco(souJogador1, "draw");
       return "draw";
     } else if (state == "showCards") {
-      passarTurno();
+      if (jogadorPrincipal == jogadorTurno) {
+        passarTurno();
+      }
       cartaDaVez = null;
       cartaDaVezAdversario = null;
+      atualizarEstadoDaAnimacaoNoBanco(souJogador1, "deck");
       return "deck";
-    } else
+    } else {
+      atualizarEstadoDaAnimacaoNoBanco(souJogador1, state);
       return state;
+    }
   }
 
   String p2UpdateState(String state, String p1State) {
@@ -531,45 +556,33 @@ class _TestePhaseState extends State<Game> {
     pontuacaoJogador2 = dadosPartida['pontuacaoJogador2'];
   }
 
+  static Carta atribuirCarta(int idCarta) {
+    int id = CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['id'];
+    String nome =
+        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['nome'];
+    double densidade =
+        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['densidade'];
+    double raio =
+        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['raio'];
+    double fusao =
+        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['fusao'];
+    double energia =
+        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['energia'];
+    double negatividade =
+        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['negatividade'];
+
+    return new Carta(
+        id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
+  }
+
   static void atualizarIdsCartasTurnoJogadores(dadosPartida) {
     idCartaTurnoJogadorTurno = dadosPartida['idCartaTurnoJogadorTurno'];
     idCartaTurnoJogadorNaoTurno = dadosPartida['idCartaTurnoJogadorNaoTurno'];
 
     if (jogadorPrincipal == jogadorTurno && cartaDaVez != null) {
-      int id = CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['id'];
-      String nome =
-          CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['nome'];
-      double densidade =
-          CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['densidade'];
-      double raio =
-          CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['raio'];
-      double fusao =
-          CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['fusao'];
-      double energia =
-          CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['energia'];
-      double negatividade = CardsAtributtes
-          .properties[idCartaTurnoJogadorNaoTurno]['negatividade'];
-
-      cartaDaVezAdversario = new Carta(
-          id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
-      ;
+      cartaDaVezAdversario = atribuirCarta(idCartaTurnoJogadorNaoTurno);
     } else if (jogadorPrincipal != jogadorTurno && cartaDaVez != null) {
-      int id = CardsAtributtes.properties[idCartaTurnoJogadorTurno]['id'];
-      String nome =
-          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['nome'];
-      double densidade =
-          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['densidade'];
-      double raio =
-          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['raio'];
-      double fusao =
-          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['fusao'];
-      double energia =
-          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['energia'];
-      double negatividade =
-          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['negatividade'];
-
-      cartaDaVezAdversario = new Carta(
-          id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
+      cartaDaVezAdversario = atribuirCarta(idCartaTurnoJogadorTurno);
     }
   }
 

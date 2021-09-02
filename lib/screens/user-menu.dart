@@ -67,6 +67,8 @@ class UserMenu extends StatelessWidget {
       "pontuacaoJogador1": 0,
       "pontuacaoJogador2": 0,
       "cartasRemovidas": [],
+      "estadoAnimacaoJogador1": "deck",
+      "estadoAnimacaoJogador2": "deck",
     });
 
     var gameIdQuery =
