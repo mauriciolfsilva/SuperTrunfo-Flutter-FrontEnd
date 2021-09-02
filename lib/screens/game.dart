@@ -428,6 +428,7 @@ class _TestePhaseState extends State<Game> {
       sacarCarta();
       return "draw";
     } else if (state == "showCards") {
+      passarTurno();
       cartaDaVez = null;
       cartaDaVezAdversario = null;
       return "deck";
@@ -476,7 +477,7 @@ class _TestePhaseState extends State<Game> {
   }
 
   static bool jogadorPrincipalSacouCarta() {
-    return cartaSorteada != null;
+    return cartaDaVez != null;
   }
 
   static String getSugestaoUsuario() {
@@ -514,7 +515,7 @@ class _TestePhaseState extends State<Game> {
       "atributoTurno": null,
       "jogadorTurno": jogadorAdversario,
     });
-    cartaSorteada = null;
+    cartaDaVez = null;
   }
 
   static void atualizarAtributoTurno(dadosPartida) {
