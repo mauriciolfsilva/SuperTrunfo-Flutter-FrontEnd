@@ -161,7 +161,7 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: _TestePhaseState.opcaoSelecionada == 1
+                          color: _TestePhaseState.atributoTurno == "densidade"
                               ? Colors.yellow
                               : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
@@ -184,7 +184,6 @@ class Carta extends StatelessWidget {
                                       {
                                         _TestePhaseState.escolherAtributoTurno(
                                             "densidade"),
-                                        _TestePhaseState.opcaoSelecionada = 1
                                       }
                                   },
                               child: Row(children: <Widget>[
@@ -205,7 +204,7 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: _TestePhaseState.opcaoSelecionada == 2
+                          color: _TestePhaseState.atributoTurno == "raio"
                               ? Colors.yellow
                               : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
@@ -228,7 +227,6 @@ class Carta extends StatelessWidget {
                                       {
                                         _TestePhaseState.escolherAtributoTurno(
                                             "raio"),
-                                        _TestePhaseState.opcaoSelecionada = 2
                                       }
                                   },
                               child: Row(children: <Widget>[
@@ -249,7 +247,7 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: _TestePhaseState.opcaoSelecionada == 3
+                          color: _TestePhaseState.atributoTurno == "fusao"
                               ? Colors.yellow
                               : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
@@ -267,7 +265,6 @@ class Carta extends StatelessWidget {
                                       {
                                         _TestePhaseState.escolherAtributoTurno(
                                             "fusao"),
-                                        _TestePhaseState.opcaoSelecionada = 3
                                       }
                                   },
                               child: Row(children: <Widget>[
@@ -289,7 +286,7 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: _TestePhaseState.opcaoSelecionada == 4
+                          color: _TestePhaseState.atributoTurno == "energia"
                               ? Colors.yellow
                               : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
@@ -307,7 +304,6 @@ class Carta extends StatelessWidget {
                                       {
                                         _TestePhaseState.escolherAtributoTurno(
                                             "energia"),
-                                        _TestePhaseState.opcaoSelecionada = 4
                                       }
                                   },
                               child: Row(children: <Widget>[
@@ -338,7 +334,7 @@ class _TestePhaseState extends State<Game> {
   // variavel "inicio" indica que acabamos de iniciar o jogo
   static bool inicio = true;
 
-  static int opcaoSelecionada = 0;
+  static bool naoVirou = true;
 
   // estados do jogo
   static bool gameWin = false; // true quando vence
@@ -460,6 +456,7 @@ class _TestePhaseState extends State<Game> {
         atualizarEstadoDaAnimacaoNoBanco(souJogador1, "deck");
         return "deck";
       }
+      return state;
     } else {
       atualizarEstadoDaAnimacaoNoBanco(souJogador1, state);
       return state;
@@ -849,13 +846,16 @@ class _TestePhaseState extends State<Game> {
 
                                         switch (p1AnimateState) {
                                           case "showCards":
-                                            cardKey.currentState.toggleCard();
-                                            cardKey1.currentState.toggleCard();
+                                            if (naoVirou) {
+                                              cardKey.currentState.toggleCard();
+                                              cardKey1.currentState
+                                                  .toggleCard();
+                                              naoVirou = false;
+                                            }
                                             break;
                                           case "deck":
                                             cardKey.currentState.toggleCard();
-                                            _TestePhaseState.opcaoSelecionada =
-                                                0;
+                                            naoVirou = true;
                                             break;
                                           case "draw":
                                             cardKey1.currentState.toggleCard();
@@ -880,15 +880,18 @@ class _TestePhaseState extends State<Game> {
                                               p2AnimateState, p1AnimateState);
                                           switch (p1AnimateState) {
                                             case "showCards":
-                                              cardKey.currentState.toggleCard();
-
+                                              if (naoVirou) {
+                                                cardKey.currentState
+                                                    .toggleCard();
+                                                naoVirou = false;
+                                              }
                                               break;
                                             case "deck":
                                               cardKey.currentState.toggleCard();
                                               cardKey1.currentState
                                                   .toggleCard();
-                                              _TestePhaseState
-                                                  .opcaoSelecionada = 0;
+                                              naoVirou = true;
+
                                               break;
                                             case "draw":
                                               cardKey1.currentState
