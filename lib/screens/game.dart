@@ -161,7 +161,9 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: _TestePhaseState.opcaoSelecionada == 1
+                              ? Colors.yellow
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
                           minWidth: double.infinity,
@@ -174,10 +176,15 @@ class Carta extends StatelessWidget {
                               ),
                               onPressed: () => {
                                     if (_TestePhaseState.jogadorPrincipal ==
-                                        _TestePhaseState.jogadorTurno)
+                                            _TestePhaseState.jogadorTurno &&
+                                        (_TestePhaseState.p1AnimateState ==
+                                                "display" ||
+                                            _TestePhaseState.p1AnimateState ==
+                                                "zoom"))
                                       {
                                         _TestePhaseState.escolherAtributoTurno(
-                                            "densidade")
+                                            "densidade"),
+                                        _TestePhaseState.opcaoSelecionada = 1
                                       }
                                   },
                               child: Row(children: <Widget>[
@@ -198,7 +205,9 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: _TestePhaseState.opcaoSelecionada == 2
+                              ? Colors.yellow
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
                           minWidth: double.infinity,
@@ -211,10 +220,15 @@ class Carta extends StatelessWidget {
                               ),
                               onPressed: () => {
                                     if (_TestePhaseState.jogadorPrincipal ==
-                                        _TestePhaseState.jogadorTurno)
+                                            _TestePhaseState.jogadorTurno &&
+                                        (_TestePhaseState.p1AnimateState ==
+                                                "display" ||
+                                            _TestePhaseState.p1AnimateState ==
+                                                "zoom"))
                                       {
                                         _TestePhaseState.escolherAtributoTurno(
-                                            "raio")
+                                            "raio"),
+                                        _TestePhaseState.opcaoSelecionada = 2
                                       }
                                   },
                               child: Row(children: <Widget>[
@@ -235,7 +249,9 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: _TestePhaseState.opcaoSelecionada == 3
+                              ? Colors.yellow
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
                           minWidth: double.infinity,
@@ -243,10 +259,15 @@ class Carta extends StatelessWidget {
                           child: TextButton(
                               onPressed: () => {
                                     if (_TestePhaseState.jogadorPrincipal ==
-                                        _TestePhaseState.jogadorTurno)
+                                            _TestePhaseState.jogadorTurno &&
+                                        (_TestePhaseState.p1AnimateState ==
+                                                "display" ||
+                                            _TestePhaseState.p1AnimateState ==
+                                                "zoom"))
                                       {
                                         _TestePhaseState.escolherAtributoTurno(
-                                            "fusao")
+                                            "fusao"),
+                                        _TestePhaseState.opcaoSelecionada = 3
                                       }
                                   },
                               child: Row(children: <Widget>[
@@ -268,7 +289,9 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: _TestePhaseState.opcaoSelecionada == 4
+                              ? Colors.yellow
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
                           minWidth: double.infinity,
@@ -276,10 +299,15 @@ class Carta extends StatelessWidget {
                           child: TextButton(
                               onPressed: () => {
                                     if (_TestePhaseState.jogadorPrincipal ==
-                                        _TestePhaseState.jogadorTurno)
+                                            _TestePhaseState.jogadorTurno &&
+                                        (_TestePhaseState.p1AnimateState ==
+                                                "display" ||
+                                            _TestePhaseState.p1AnimateState ==
+                                                "zoom"))
                                       {
                                         _TestePhaseState.escolherAtributoTurno(
-                                            "energia")
+                                            "energia"),
+                                        _TestePhaseState.opcaoSelecionada = 4
                                       }
                                   },
                               child: Row(children: <Widget>[
@@ -310,6 +338,8 @@ class _TestePhaseState extends State<Game> {
   // variavel "inicio" indica que acabamos de iniciar o jogo
   static bool inicio = true;
 
+  static int opcaoSelecionada = 0;
+
   // estados do jogo
   static bool gameWin = false; // true quando vence
   static bool gameFinish =
@@ -328,12 +358,15 @@ class _TestePhaseState extends State<Game> {
   static int pontuacaoJogador1, pontuacaoJogador2;
   static int idCartaTurnoJogadorTurno, idCartaTurnoJogadorNaoTurno;
   static var atributoTurno;
-  static int cartaSorteada;
+  static Carta cartaSorteada;
+  static var cartasQueSairamDoDeck;
   static var jogadorPrincipal, gameId;
-  static var cartasNoDeck = [1, 2, 3];
   static var timeoutTurno, timeoutSugestaoUsuario;
   static var sugestaoUsuario;
   static bool firstLoad = false;
+
+  static Carta cartaDaVez;
+  static Carta cartaDaVezAdversario;
 
   static double animateWidth(String state) {
     if (state == 'zoom')
@@ -368,7 +401,7 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
-  static Alignment p2AnimateAlignment(String state) {
+  Alignment p2AnimateAlignment(String state) {
     switch (state) {
       case 'deck':
         return Alignment.topLeft;
@@ -381,20 +414,28 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
-  static String p1UpdateState(String state) {
+  String p1UpdateState(String state) {
     if (state == "draw")
       return "zoom";
     else if (state == "zoom")
       return "display";
-    else if (state == "display")
+    else if (state == "display" &&
+        idCartaTurnoJogadorNaoTurno != null &&
+        idCartaTurnoJogadorTurno != null &&
+        atributoTurno != null)
       return "showCards";
-    else if (state == "deck")
+    else if (state == "deck") {
+      sacarCarta();
       return "draw";
-    else
+    } else if (state == "showCards") {
+      cartaDaVez = null;
+      cartaDaVezAdversario = null;
       return "deck";
+    } else
+      return state;
   }
 
-  static String p2UpdateState(String state, String p1State) {
+  String p2UpdateState(String state, String p1State) {
     if (state == "deck" && p1State == "draw")
       return "draw";
     else if (state == "draw" && p1State == "zoom")
@@ -403,11 +444,13 @@ class _TestePhaseState extends State<Game> {
       return "display";
     else if (state == "display" && p1State == "showCards")
       return "showCards";
-    else
+    else if (state == "showCards" && p1State == "deck")
       return "deck";
+    else
+      return state;
   }
 
-  static Alignment animateAlignment(String state) {
+  Alignment animateAlignment(String state) {
     switch (state) {
       case 'deck':
         print(1);
@@ -490,13 +533,48 @@ class _TestePhaseState extends State<Game> {
   static void atualizarIdsCartasTurnoJogadores(dadosPartida) {
     idCartaTurnoJogadorTurno = dadosPartida['idCartaTurnoJogadorTurno'];
     idCartaTurnoJogadorNaoTurno = dadosPartida['idCartaTurnoJogadorNaoTurno'];
+
+    if (jogadorPrincipal == jogadorTurno && cartaDaVez != null) {
+      int id = CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['id'];
+      String nome =
+          CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['nome'];
+      double densidade =
+          CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['densidade'];
+      double raio =
+          CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['raio'];
+      double fusao =
+          CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['fusao'];
+      double energia =
+          CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['energia'];
+      double negatividade = CardsAtributtes
+          .properties[idCartaTurnoJogadorNaoTurno]['negatividade'];
+
+      cartaDaVezAdversario = new Carta(
+          id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
+      ;
+    } else if (jogadorPrincipal != jogadorTurno && cartaDaVez != null) {
+      int id = CardsAtributtes.properties[idCartaTurnoJogadorTurno]['id'];
+      String nome =
+          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['nome'];
+      double densidade =
+          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['densidade'];
+      double raio =
+          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['raio'];
+      double fusao =
+          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['fusao'];
+      double energia =
+          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['energia'];
+      double negatividade =
+          CardsAtributtes.properties[idCartaTurnoJogadorTurno]['negatividade'];
+
+      cartaDaVezAdversario = new Carta(
+          id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
+    }
   }
 
   static void atualizarCartasNoDeck(dadosDaPartida) {
     var cartasRemovidas = dadosDaPartida['cartasRemovidas'];
-    var conjuntoRemovidas = Set.from(cartasRemovidas);
-    var conjuntoDeck = Set.from(cartasNoDeck);
-    cartasNoDeck = List.from(conjuntoDeck.difference(conjuntoRemovidas));
+    cartasQueSairamDoDeck = cartasRemovidas;
   }
 
   static void atualizarAtributos(DocumentSnapshot partida) {
@@ -538,24 +616,35 @@ class _TestePhaseState extends State<Game> {
     });
   }
 
-  static sortearCarta(List cartas) {
-    cartas.shuffle();
-    return cartas[0];
+  static sortearCarta(dynamic cartas) {
+    var conjuntoRemovidas = Set.from(cartasQueSairamDoDeck);
+    var conjuntoDeck = Set.from(cartas.keys.toList());
+    var cards = List.from(conjuntoDeck.difference(conjuntoRemovidas));
+    cards.shuffle();
+    return cards[0];
   }
 
   //Essa função deve ser chamada quando o jogador
   //desejar selecionar uma nova carta do baralho
   void sacarCarta() {
-    if (cartaSorteada == null) {
-      cartaSorteada = sortearCarta(cartasNoDeck);
-      atualizarCartasRemovidasBD(cartaSorteada);
-      inserirCartaJogadorBD(cartaSorteada);
-      print(cartaSorteada);
-      var carta = CardsAtributtes.properties[cartaSorteada];
+    var cartaSorteadaNum = sortearCarta(CardsAtributtes.properties);
+    print(cartaSorteadaNum);
+    int id = CardsAtributtes.properties[cartaSorteadaNum]['id'];
+    String nome = CardsAtributtes.properties[cartaSorteadaNum]['nome'];
+    double densidade =
+        CardsAtributtes.properties[cartaSorteadaNum]['densidade'];
+    double raio = CardsAtributtes.properties[cartaSorteadaNum]['raio'];
+    double fusao = CardsAtributtes.properties[cartaSorteadaNum]['fusao'];
+    double energia = CardsAtributtes.properties[cartaSorteadaNum]['energia'];
+    double negatividade =
+        CardsAtributtes.properties[cartaSorteadaNum]['negatividade'];
 
-      showMyDialog('Sacando a carta',
-          'Carta Sorteada ' + cartaSorteada.toString(), carta['nome']);
-    }
+    cartaDaVez =
+        new Carta(id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
+    ;
+
+    atualizarCartasRemovidasBD(cartaSorteadaNum);
+    inserirCartaJogadorBD(cartaSorteadaNum);
   }
 
   static void escolherAtributoTurno(atributo) {
@@ -652,49 +741,11 @@ class _TestePhaseState extends State<Game> {
     Timer(Duration(seconds: 1), () {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (inicio) {
-          mostraWidgetPorUmTempo(context: context, widget: vsText());
+          //mostraWidgetPorUmTempo(context: context, widget: vsText());
           inicio = false;
         }
       });
     });
-
-    Carta cartaDaVez =
-        Carta(1, "Hidrogênio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7);
-
-    List<Carta> cartas = [
-      Carta(1, "Hidrogênio", 0.0008988, 38, -259.14, 1312.0, 2.2, 7000),
-      Carta(2, "Hélio", 0.0001786, 32, -272.2, 2372.3, 0, 0),
-      Carta(3, "Lítio", 0.535, 134, 180.54, 520.2, 0.98, 0.007),
-      Carta(6, "Carbono", 2.46, 77, 4440, 1086.5, 2.55, 16000),
-      Carta(7, "Nitrogênio", 0.001251, 75, -210.00, 1402.3, 3.04, 1800),
-      Carta(8, "Oxigênio", 0.001429, 73, -218.79, 1313.9, 3.44, 43000),
-      Carta(9, "Flúor", 0.0017, 71, -219.62, 1681.0, 3.98, 2.6),
-      Carta(11, "Sódio", 0.968, 154, 97.72, 495.8, 0.93, 100),
-      Carta(12, "Magnésio", 1.738, 130, 650, 737.7, 1.31, 19),
-      Carta(13, "Alumínio", 2.7, 118, 660.32, 577.5, 1.61, 0.060),
-      Carta(14, "Silício", 2.33, 111, 1414, 786.5, 1.90, 1),
-      Carta(15, "Fósforo", 1.823, 106, 44.15, 1011.8, 2.19, 780),
-      Carta(16, "Enxofre", 2.08, 102, 95.3, 999.6, 2.58, 140),
-      Carta(17, "Cloro", 0.0032, 99, -101.5, 1251.2, 3.16, 95),
-      Carta(18, "Argônio", 0.001784, 97, -189.35, 1520.6, 0, 0),
-      Carta(19, "Potássio", 0.856, 196, 63.38, 418.8, 0.82, 140),
-      Carta(20, "Cálcio", 1.55, 174, 842, 589.8, 1.00, 1000),
-      Carta(24, "Crômio (Cromo)", 7.15, 127, 1907, 652.9, 1.66, 0.014),
-      Carta(26, "Ferro", 7.874, 125, 1538, 762.5, 1.83, 4.2),
-      Carta(29, "Cobre", 8.92, 138, 1084.62, 745.5, 1.90, 0.072),
-      Carta(30, "Zinco", 7.14, 131, 419.53, 906.4, 1.65, 2.3),
-      Carta(33, "Arsênio", 5.727, 119, 817, 947.0, 2.18, 0.007),
-      Carta(47, "Prata", 10.49, 153, 961.78, 731.0, 1.93, 0.002),
-      Carta(50, "Estanho", 7.31, 141, 231.93, 708.6, 1.96, 0.02),
-      Carta(53, "Iodo", 4.94, 133, 113.7, 1008.4, 2.66, 0.02),
-      Carta(55, "Césio", 1.879, 225, 28.44, 375.7, 0.79, 0.006),
-      Carta(57, "Lantânio", 6.146, 169, 920, 538.1, 1.10, 0.0008),
-      Carta(78, "Platina", 21.09, 128, 1768.3, 870, 2.28, 0),
-      Carta(79, "Ouro", 19.30, 144, 1064.18, 890.1, 2.54, 0.0002),
-      Carta(80, "Mercúrio", 13.534, 149, -38.83, 1007.1, 2.00, 0.006),
-      Carta(82, "Chumbo", 11.34, 147, 327.46, 715.6, 2.33, 0.12),
-      Carta(92, "Urânio", 19.05, 118, 1132.2, 597.6, 1.38, 0.0001)
-    ];
 
     return new Scaffold(
         appBar: AppBar(
@@ -732,7 +783,7 @@ class _TestePhaseState extends State<Game> {
                             color: Colors.cyan,
                             borderRadius: BorderRadius.circular(5),
                           )),
-                          back: cartaDaVez,
+                          back: cartaDaVezAdversario,
                         )),
                   ),
                 ),
@@ -756,7 +807,7 @@ class _TestePhaseState extends State<Game> {
                                             EdgeInsets.all(0))),
                                     child: Container(
                                         decoration: BoxDecoration(
-                                      color: Colors.cyan,
+                                      color: Colors.green,
                                       borderRadius: BorderRadius.circular(5),
                                     )),
                                     onPressed: () {
@@ -765,6 +816,7 @@ class _TestePhaseState extends State<Game> {
                                             p1UpdateState(p1AnimateState);
                                         p2AnimateState = p2UpdateState(
                                             p2AnimateState, p1AnimateState);
+
                                         switch (p1AnimateState) {
                                           case "showCards":
                                             cardKey.currentState.toggleCard();
@@ -772,12 +824,14 @@ class _TestePhaseState extends State<Game> {
                                             break;
                                           case "deck":
                                             cardKey.currentState.toggleCard();
+                                            _TestePhaseState.opcaoSelecionada =
+                                                0;
                                             break;
                                           case "draw":
                                             cardKey1.currentState.toggleCard();
                                             break;
                                           default:
-                                            false;
+                                            "deck";
                                         }
                                       });
                                     }),
@@ -803,13 +857,15 @@ class _TestePhaseState extends State<Game> {
                                               cardKey.currentState.toggleCard();
                                               cardKey1.currentState
                                                   .toggleCard();
+                                              _TestePhaseState
+                                                  .opcaoSelecionada = 0;
                                               break;
                                             case "draw":
                                               cardKey1.currentState
                                                   .toggleCard();
                                               break;
                                             default:
-                                              false;
+                                              "deck";
                                           }
                                         });
                                       }),
