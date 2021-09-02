@@ -364,6 +364,7 @@ class _TestePhaseState extends State<Game> {
   static var timeoutTurno, timeoutSugestaoUsuario;
   static var sugestaoUsuario;
   static bool firstLoad = false;
+  static String estadoAnimacaoDoAdversario;
 
   static Carta cartaDaVez;
   static Carta cartaDaVezAdversario;
@@ -448,13 +449,17 @@ class _TestePhaseState extends State<Game> {
       atualizarEstadoDaAnimacaoNoBanco(souJogador1, "draw");
       return "draw";
     } else if (state == "showCards") {
-      if (jogadorPrincipal == jogadorTurno) {
+      if (jogadorPrincipal == jogadorTurno &&
+          estadoAnimacaoDoAdversario == "deck") {
         passarTurno();
+        //cartaDaVez = null;
+        //cartaDaVezAdversario = null;
+        atualizarEstadoDaAnimacaoNoBanco(souJogador1, "deck");
+        return "deck";
+      } else if (jogadorPrincipal != jogadorTurno) {
+        atualizarEstadoDaAnimacaoNoBanco(souJogador1, "deck");
+        return "deck";
       }
-      cartaDaVez = null;
-      cartaDaVezAdversario = null;
-      atualizarEstadoDaAnimacaoNoBanco(souJogador1, "deck");
-      return "deck";
     } else {
       atualizarEstadoDaAnimacaoNoBanco(souJogador1, state);
       return state;
@@ -591,6 +596,16 @@ class _TestePhaseState extends State<Game> {
     cartasQueSairamDoDeck = cartasRemovidas;
   }
 
+  static void atualizarEstadoDoAdversario(dadosDaPartida) {
+    var estadoAdversario;
+    if (jogadorPrincipal == jogador1) {
+      estadoAdversario = dadosDaPartida['estadoAnimacaoJogador2'];
+    } else {
+      estadoAdversario = dadosDaPartida['estadoAnimacaoJogador1'];
+    }
+    estadoAnimacaoDoAdversario = estadoAdversario;
+  }
+
   static void atualizarAtributos(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     atualizarCartasNoDeck(dadosPartida);
@@ -598,6 +613,7 @@ class _TestePhaseState extends State<Game> {
     atualizarPontuacaoJogadores(dadosPartida);
     atualizarJogadorTurno(dadosPartida);
     atualizarAtributoTurno(dadosPartida);
+    atualizarEstadoDoAdversario(dadosPartida);
   }
 
   static void verificarSePartidaFinalizada(DocumentSnapshot partida) {
