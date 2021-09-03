@@ -453,8 +453,8 @@ class _TestePhaseState extends State<Game> {
       //cartaDaVez = null;
       //cartaDaVezAdversario = null;
       state = "deck";
-      atualizarEstadoDaAnimacaoNoBanco(state);
-      calcularPontuacaoRodada();
+      //atualizarEstadoDaAnimacaoNoBanco(state);
+      calcularPontuacaoRodada(state);
       jogadorTurno = 'teste';
       return state;
     }
@@ -703,7 +703,7 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
-  static void calcularPontuacaoRodada() {
+  static void calcularPontuacaoRodada(String state) {
     if (jogadorPrincipal == jogadorTurno) {
       var cartaJogadorPrincipal =
           CardsAtributtes.properties[idCartaTurnoJogadorTurno];
@@ -715,13 +715,25 @@ class _TestePhaseState extends State<Game> {
       var updateQuery;
 
       if (jogadorPrincipal == jogador1 && principalVencedor) {
-        updateQuery = {"pontuacaoJogador1": FieldValue.increment(1)};
+        updateQuery = {
+          "pontuacaoJogador1": FieldValue.increment(1),
+          "estadoAnimacaoJogadorTurno": state
+        };
       } else if (jogadorPrincipal == jogador2 && principalVencedor) {
-        updateQuery = {"pontuacaoJogador2": FieldValue.increment(1)};
+        updateQuery = {
+          "pontuacaoJogador2": FieldValue.increment(1),
+          "estadoAnimacaoJogadorTurno": state
+        };
       } else if (jogadorPrincipal == jogador1 && !principalVencedor) {
-        updateQuery = {"pontuacaoJogador2": FieldValue.increment(1)};
+        updateQuery = {
+          "pontuacaoJogador2": FieldValue.increment(1),
+          "estadoAnimacaoJogadorTurno": state
+        };
       } else if (jogadorPrincipal == jogador2 && !principalVencedor) {
-        updateQuery = {"pontuacaoJogador1": FieldValue.increment(1)};
+        updateQuery = {
+          "pontuacaoJogador1": FieldValue.increment(1),
+          "estadoAnimacaoJogadorTurno": state
+        };
       }
 
       var db = FirebaseFirestore.instance;
