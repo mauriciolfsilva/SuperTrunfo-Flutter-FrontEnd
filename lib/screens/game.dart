@@ -433,9 +433,6 @@ class _TestePhaseState extends State<Game> {
       state = "draw";
     } else if (state == "showCards") {
       state = "deck";
-      setState(() {
-        jogadorTurno = jogadorPrincipal;
-      });
     }
     return state;
   }
@@ -456,9 +453,6 @@ class _TestePhaseState extends State<Game> {
       state = "deck";
       atualizarEstadoDaAnimacaoNoBanco(state);
       passarTurno();
-      setState(() {
-        jogadorTurno = jogador1 == jogadorPrincipal ? jogador2 : jogador1;
-      });
     }
     atualizarEstadoDaAnimacaoNoBanco(state);
     return state;
@@ -552,7 +546,7 @@ class _TestePhaseState extends State<Game> {
   }
 
   static void atualizarJogadorTurno(dadosPartida) {
-    //jogadorTurno = dadosPartida['jogadorTurno'];
+    jogadorTurno = dadosPartida['jogadorTurno'];
   }
 
   static void atualizarPontuacaoJogadores(dadosPartida) {
@@ -690,7 +684,6 @@ class _TestePhaseState extends State<Game> {
 
     cartaDaVez =
         new Carta(id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
-    ;
 
     atualizarCartasRemovidasBD(cartaSorteadaNum);
     inserirCartaJogadorBD(cartaSorteadaNum);
