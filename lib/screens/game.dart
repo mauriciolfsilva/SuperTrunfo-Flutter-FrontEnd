@@ -411,56 +411,53 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
-  void atualizarEstadoDaAnimacaoNoBanco(bool souJogador1, String estado) {
+  void atualizarEstadoDaAnimacaoNoBanco(String estado) {
     var db = FirebaseFirestore.instance;
-    if (souJogador1) {
+    if (jogadorPrincipal == jogadorTurno) {
       db
           .collection('partidas')
           .doc(gameId)
-          .update({"estadoAnimacaoJogador1": estado});
-    } else {
-      db
-          .collection('partidas')
-          .doc(gameId)
-          .update({"estadoAnimacaoJogador2": estado});
+          .update({"estadoAnimacaoJogadorTurno": estado});
     }
   }
 
-  String p1UpdateState(String state) {
-    var souJogador1 = jogadorPrincipal == jogador1 ? true : false;
+  String p1UpdateStateNaoTurno(String state) {
     if (state == "draw") {
-      atualizarEstadoDaAnimacaoNoBanco(souJogador1, "zoom");
-      return "zoom";
+      state = "zoom";
     } else if (state == "zoom") {
-      atualizarEstadoDaAnimacaoNoBanco(souJogador1, "display");
-      return "display";
-    } else if (state == "display" &&
-        idCartaTurnoJogadorNaoTurno != null &&
-        idCartaTurnoJogadorTurno != null &&
-        atributoTurno != null) {
-      atualizarEstadoDaAnimacaoNoBanco(souJogador1, "showCards");
-      return "showCards";
+      state = "display";
+    } else if (state == "display") {
+      state = "showCards";
     } else if (state == "deck") {
       sacarCarta();
-      atualizarEstadoDaAnimacaoNoBanco(souJogador1, "draw");
-      return "draw";
+      state = "draw";
     } else if (state == "showCards") {
-      if (jogadorPrincipal == jogadorTurno &&
-          estadoAnimacaoDoAdversario == "deck") {
-        passarTurno();
-        //cartaDaVez = null;
-        //cartaDaVezAdversario = null;
-        atualizarEstadoDaAnimacaoNoBanco(souJogador1, "deck");
-        return "deck";
-      } else if (jogadorPrincipal != jogadorTurno) {
-        atualizarEstadoDaAnimacaoNoBanco(souJogador1, "deck");
-        return "deck";
-      }
-      return state;
-    } else {
-      atualizarEstadoDaAnimacaoNoBanco(souJogador1, state);
-      return state;
+      //passarTurno();
+      //cartaDaVez = null;
+      //cartaDaVezAdversario = null;
+      state = "deck";
     }
+    return state;
+  }
+
+  String p1UpdateState(String state) {
+    if (state == "draw") {
+      state = "zoom";
+    } else if (state == "zoom") {
+      state = "display";
+    } else if (state == "display") {
+      state = "showCards";
+    } else if (state == "deck") {
+      sacarCarta();
+      state = "draw";
+    } else if (state == "showCards") {
+      passarTurno();
+      cartaDaVez = null;
+      cartaDaVezAdversario = null;
+      state = "deck";
+    }
+    atualizarEstadoDaAnimacaoNoBanco(state);
+    return state;
   }
 
   String p2UpdateState(String state, String p1State) {
@@ -542,7 +539,7 @@ class _TestePhaseState extends State<Game> {
       "atributoTurno": null,
       "jogadorTurno": jogadorAdversario,
     });
-    cartaDaVez = null;
+    //cartaDaVez = null;
   }
 
   static void atualizarAtributoTurno(dadosPartida) {
@@ -593,16 +590,6 @@ class _TestePhaseState extends State<Game> {
     cartasQueSairamDoDeck = cartasRemovidas;
   }
 
-  static void atualizarEstadoDoAdversario(dadosDaPartida) {
-    var estadoAdversario;
-    if (jogadorPrincipal == jogador1) {
-      estadoAdversario = dadosDaPartida['estadoAnimacaoJogador2'];
-    } else {
-      estadoAdversario = dadosDaPartida['estadoAnimacaoJogador1'];
-    }
-    estadoAnimacaoDoAdversario = estadoAdversario;
-  }
-
   static void atualizarAtributos(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     atualizarCartasNoDeck(dadosPartida);
@@ -610,7 +597,6 @@ class _TestePhaseState extends State<Game> {
     atualizarPontuacaoJogadores(dadosPartida);
     atualizarJogadorTurno(dadosPartida);
     atualizarAtributoTurno(dadosPartida);
-    atualizarEstadoDoAdversario(dadosPartida);
   }
 
   static void verificarSePartidaFinalizada(DocumentSnapshot partida) {
@@ -619,12 +605,43 @@ class _TestePhaseState extends State<Game> {
     p2Score = dadosPartida['pontuacaoJogador2'];
   }
 
+  void movimentarJogadorNaoTurno(DocumentSnapshot partida) {
+    var dadosPartida = partida.data();
+    var ultimoEstagio = dadosPartida['estadoAnimacaoJogadorTurno'];
+    if (jogadorPrincipal != jogadorTurno) {
+      setState(() {
+        p1AnimateState = p1UpdateStateNaoTurno(p1AnimateState);
+        p2AnimateState = p2UpdateState(p2AnimateState, p1AnimateState);
+
+        switch (p1AnimateState) {
+          case "showCards":
+            if (naoVirou) {
+              cardKey.currentState.toggleCard();
+              cardKey1.currentState.toggleCard();
+              naoVirou = false;
+            }
+            break;
+          case "deck":
+            cardKey.currentState.toggleCard();
+            naoVirou = true;
+            break;
+          case "draw":
+            cardKey1.currentState.toggleCard();
+            break;
+          default:
+            "deck";
+        }
+      });
+    }
+  }
+
   Future<void> listenerDoJogo() async {
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(gameId).snapshots().listen((result) {
       atualizarAtributos(result);
       atualizarSugestaoUsuario();
       verificarSePartidaFinalizada(result);
+      movimentarJogadorNaoTurno(result);
     });
   }
 
@@ -891,7 +908,6 @@ class _TestePhaseState extends State<Game> {
                                               cardKey1.currentState
                                                   .toggleCard();
                                               naoVirou = true;
-
                                               break;
                                             case "draw":
                                               cardKey1.currentState
