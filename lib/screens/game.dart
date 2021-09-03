@@ -350,7 +350,7 @@ class _TestePhaseState extends State<Game> {
   GlobalKey<FlipCardState> cardKey1 = GlobalKey<FlipCardState>();
 
   static String animateState = 'deck';
-  static String jogador1, jogador2, jogadorTurno;
+  static String jogador1, jogador2, jogadorTurno = "inicio";
   static int pontuacaoJogador1, pontuacaoJogador2;
   static int idCartaTurnoJogadorTurno, idCartaTurnoJogadorNaoTurno;
   static var atributoTurno;
@@ -432,6 +432,7 @@ class _TestePhaseState extends State<Game> {
       sacarCarta();
       state = "draw";
     } else if (state == "showCards") {
+      jogadorTurno = jogadorPrincipal;
       state = "deck";
     }
     return state;
@@ -447,12 +448,14 @@ class _TestePhaseState extends State<Game> {
     } else if (state == "deck") {
       sacarCarta();
       state = "draw";
+      atualizarEstadoDaAnimacaoNoBanco(state);
     } else if (state == "showCards" && atributoTurno != null) {
       //cartaDaVez = null;
       //cartaDaVezAdversario = null;
       state = "deck";
       atualizarEstadoDaAnimacaoNoBanco(state);
       passarTurno();
+      jogadorTurno = 'teste';
     }
     atualizarEstadoDaAnimacaoNoBanco(state);
     return state;
@@ -545,8 +548,11 @@ class _TestePhaseState extends State<Game> {
     atributoTurno = dadosPartida['atributoTurno'];
   }
 
-  static void atualizarJogadorTurno(dadosPartida) {
-    jogadorTurno = dadosPartida['jogadorTurno'];
+  void atualizarJogadorTurno(dadosPartida) {
+    // setState(() {
+    //   // por algum motivo o jogadorTurno não está sendo refletido na variavel
+    //   //jogadorTurno = dadosPartida['jogadorTurno'];
+    // });
   }
 
   static void atualizarPontuacaoJogadores(dadosPartida) {
@@ -589,7 +595,7 @@ class _TestePhaseState extends State<Game> {
     cartasQueSairamDoDeck = cartasRemovidas;
   }
 
-  static void atualizarAtributos(DocumentSnapshot partida) {
+  void atualizarAtributos(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     atualizarCartasNoDeck(dadosPartida);
     atualizarIdsCartasTurnoJogadores(dadosPartida);
@@ -607,6 +613,7 @@ class _TestePhaseState extends State<Game> {
   void movimentarJogadorNaoTurno(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     var ultimoEstagio = dadosPartida['estadoAnimacaoJogadorTurno'];
+    showMyDialog(jogadorTurno, p1AnimateState, ultimoEstagio);
     if (jogadorPrincipal != jogadorTurno && p1AnimateState != ultimoEstagio) {
       setState(() {
         p1AnimateState = p1UpdateStateNaoTurno(p1AnimateState);
