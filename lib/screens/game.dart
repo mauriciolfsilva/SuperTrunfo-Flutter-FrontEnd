@@ -432,10 +432,8 @@ class _TestePhaseState extends State<Game> {
       sacarCarta();
       state = "draw";
     } else if (state == "showCards") {
-      //passarTurno();
-      //cartaDaVez = null;
-      //cartaDaVezAdversario = null;
       state = "deck";
+      jogadorTurno = jogadorPrincipal;
     }
     return state;
   }
@@ -443,18 +441,21 @@ class _TestePhaseState extends State<Game> {
   String p1UpdateState(String state) {
     if (state == "draw") {
       state = "zoom";
-    } else if (state == "zoom") {
+    } else if (state == "zoom" && atributoTurno != null) {
       state = "display";
     } else if (state == "display") {
       state = "showCards";
     } else if (state == "deck") {
       sacarCarta();
       state = "draw";
-    } else if (state == "showCards") {
-      passarTurno();
-      cartaDaVez = null;
-      cartaDaVezAdversario = null;
+    } else if (state == "showCards" && atributoTurno != null) {
+      //cartaDaVez = null;
+      //cartaDaVezAdversario = null;
       state = "deck";
+      atualizarEstadoDaAnimacaoNoBanco(state);
+      passarTurno();
+
+      jogadorTurno = jogador1 == jogadorTurno ? jogador2 : jogador1;
     }
     atualizarEstadoDaAnimacaoNoBanco(state);
     return state;
@@ -526,7 +527,7 @@ class _TestePhaseState extends State<Game> {
   }
 
   static String getNomeJogadorAdversario() {
-    return jogador1 == jogadorPrincipal ? jogador2 : jogador1;
+    return jogador1 == jogadorTurno ? jogador2 : jogador1;
   }
 
   void passarTurno() async {
@@ -538,6 +539,7 @@ class _TestePhaseState extends State<Game> {
       "idCartaTurnoJogadorTurno": null,
       "atributoTurno": null,
       "jogadorTurno": jogadorAdversario,
+      "estadoAnimacaoJogadorTurno": "deck",
     });
     //cartaDaVez = null;
   }
@@ -547,7 +549,7 @@ class _TestePhaseState extends State<Game> {
   }
 
   static void atualizarJogadorTurno(dadosPartida) {
-    jogadorTurno = dadosPartida['jogadorTurno'];
+    //jogadorTurno = dadosPartida['jogadorTurno'];
   }
 
   static void atualizarPontuacaoJogadores(dadosPartida) {
@@ -608,7 +610,8 @@ class _TestePhaseState extends State<Game> {
   void movimentarJogadorNaoTurno(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     var ultimoEstagio = dadosPartida['estadoAnimacaoJogadorTurno'];
-    if (jogadorPrincipal != jogadorTurno) {
+    if (jogadorPrincipal != jogadorTurno &&
+        (p1AnimateState != ultimoEstagio || ultimoEstagio == "deck")) {
       setState(() {
         p1AnimateState = p1UpdateStateNaoTurno(p1AnimateState);
         p2AnimateState = p2UpdateState(p2AnimateState, p1AnimateState);
@@ -779,7 +782,7 @@ class _TestePhaseState extends State<Game> {
     if (!firstLoad) {
       inicializarAtributos(context);
       listenerDoJogo();
-      iniciarTemporizadoresDoJogo();
+      //iniciarTemporizadoresDoJogo();
       firstLoad = true;
     }
     Timer(Duration(seconds: 1), () {
@@ -856,29 +859,33 @@ class _TestePhaseState extends State<Game> {
                                     )),
                                     onPressed: () {
                                       setState(() {
-                                        p1AnimateState =
-                                            p1UpdateState(p1AnimateState);
-                                        p2AnimateState = p2UpdateState(
-                                            p2AnimateState, p1AnimateState);
+                                        if (jogadorPrincipal == jogadorTurno) {
+                                          p1AnimateState =
+                                              p1UpdateState(p1AnimateState);
+                                          p2AnimateState = p2UpdateState(
+                                              p2AnimateState, p1AnimateState);
 
-                                        switch (p1AnimateState) {
-                                          case "showCards":
-                                            if (naoVirou) {
+                                          switch (p1AnimateState) {
+                                            case "showCards":
+                                              if (naoVirou) {
+                                                cardKey.currentState
+                                                    .toggleCard();
+                                                cardKey1.currentState
+                                                    .toggleCard();
+                                                naoVirou = false;
+                                              }
+                                              break;
+                                            case "deck":
                                               cardKey.currentState.toggleCard();
+                                              naoVirou = true;
+                                              break;
+                                            case "draw":
                                               cardKey1.currentState
                                                   .toggleCard();
-                                              naoVirou = false;
-                                            }
-                                            break;
-                                          case "deck":
-                                            cardKey.currentState.toggleCard();
-                                            naoVirou = true;
-                                            break;
-                                          case "draw":
-                                            cardKey1.currentState.toggleCard();
-                                            break;
-                                          default:
-                                            "deck";
+                                              break;
+                                            default:
+                                              "deck";
+                                          }
                                         }
                                       });
                                     }),
@@ -891,30 +898,34 @@ class _TestePhaseState extends State<Game> {
                                       child: cartaDaVez,
                                       onPressed: () {
                                         setState(() {
-                                          p1AnimateState =
-                                              p1UpdateState(p1AnimateState);
-                                          p2AnimateState = p2UpdateState(
-                                              p2AnimateState, p1AnimateState);
-                                          switch (p1AnimateState) {
-                                            case "showCards":
-                                              if (naoVirou) {
+                                          if (jogadorPrincipal ==
+                                              jogadorTurno) {
+                                            p1AnimateState =
+                                                p1UpdateState(p1AnimateState);
+                                            p2AnimateState = p2UpdateState(
+                                                p2AnimateState, p1AnimateState);
+                                            switch (p1AnimateState) {
+                                              case "showCards":
+                                                if (naoVirou) {
+                                                  cardKey.currentState
+                                                      .toggleCard();
+                                                  naoVirou = false;
+                                                }
+                                                break;
+                                              case "deck":
                                                 cardKey.currentState
                                                     .toggleCard();
-                                                naoVirou = false;
-                                              }
-                                              break;
-                                            case "deck":
-                                              cardKey.currentState.toggleCard();
-                                              cardKey1.currentState
-                                                  .toggleCard();
-                                              naoVirou = true;
-                                              break;
-                                            case "draw":
-                                              cardKey1.currentState
-                                                  .toggleCard();
-                                              break;
-                                            default:
-                                              "deck";
+                                                cardKey1.currentState
+                                                    .toggleCard();
+                                                naoVirou = true;
+                                                break;
+                                              case "draw":
+                                                cardKey1.currentState
+                                                    .toggleCard();
+                                                break;
+                                              default:
+                                                "deck";
+                                            }
                                           }
                                         });
                                       }),
