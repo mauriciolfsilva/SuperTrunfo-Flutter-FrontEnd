@@ -433,7 +433,9 @@ class _TestePhaseState extends State<Game> {
       state = "draw";
     } else if (state == "showCards") {
       state = "deck";
-      jogadorTurno = jogadorPrincipal;
+      setState(() {
+        jogadorTurno = jogadorPrincipal;
+      });
     }
     return state;
   }
@@ -454,8 +456,9 @@ class _TestePhaseState extends State<Game> {
       state = "deck";
       atualizarEstadoDaAnimacaoNoBanco(state);
       passarTurno();
-
-      jogadorTurno = jogador1 == jogadorTurno ? jogador2 : jogador1;
+      setState(() {
+        jogadorTurno = jogador1 == jogadorPrincipal ? jogador2 : jogador1;
+      });
     }
     atualizarEstadoDaAnimacaoNoBanco(state);
     return state;
@@ -527,7 +530,7 @@ class _TestePhaseState extends State<Game> {
   }
 
   static String getNomeJogadorAdversario() {
-    return jogador1 == jogadorTurno ? jogador2 : jogador1;
+    return jogador1 == jogadorPrincipal ? jogador2 : jogador1;
   }
 
   void passarTurno() async {
@@ -610,8 +613,7 @@ class _TestePhaseState extends State<Game> {
   void movimentarJogadorNaoTurno(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     var ultimoEstagio = dadosPartida['estadoAnimacaoJogadorTurno'];
-    if (jogadorPrincipal != jogadorTurno &&
-        (p1AnimateState != ultimoEstagio || ultimoEstagio == "deck")) {
+    if (jogadorPrincipal != jogadorTurno && p1AnimateState != ultimoEstagio) {
       setState(() {
         p1AnimateState = p1UpdateStateNaoTurno(p1AnimateState);
         p2AnimateState = p2UpdateState(p2AnimateState, p1AnimateState);
