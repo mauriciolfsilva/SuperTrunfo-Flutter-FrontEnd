@@ -454,8 +454,9 @@ class _TestePhaseState extends State<Game> {
       //cartaDaVezAdversario = null;
       state = "deck";
       atualizarEstadoDaAnimacaoNoBanco(state);
-      passarTurno();
+      calcularPontuacaoRodada();
       jogadorTurno = 'teste';
+      return state;
     }
     atualizarEstadoDaAnimacaoNoBanco(state);
     return state;
@@ -530,19 +531,19 @@ class _TestePhaseState extends State<Game> {
     return jogador1 == jogadorPrincipal ? jogador2 : jogador1;
   }
 
-  void passarTurno() async {
-    calcularPontuacaoRodada();
-    var jogadorAdversario = getNomeJogadorAdversario();
-    var db = FirebaseFirestore.instance;
-    db.collection('partidas').doc(gameId).update({
-      "idCartaTurnoJogadorNaoTurno": null,
-      "idCartaTurnoJogadorTurno": null,
-      "atributoTurno": null,
-      "jogadorTurno": jogadorAdversario,
-      "estadoAnimacaoJogadorTurno": "deck",
-    });
-    //cartaDaVez = null;
-  }
+  // void passarTurno() async {
+  //   calcularPontuacaoRodada();
+  //   var jogadorAdversario = getNomeJogadorAdversario();
+  //   var db = FirebaseFirestore.instance;
+  //   db.collection('partidas').doc(gameId).update({
+  //     "idCartaTurnoJogadorNaoTurno": null,
+  //     "idCartaTurnoJogadorTurno": null,
+  //     "atributoTurno": null,
+  //     //"jogadorTurno": jogadorAdversario,
+  //     //"estadoAnimacaoJogadorTurno": "deck",
+  //   });
+  //   //cartaDaVez = null;
+  // }
 
   static void atualizarAtributoTurno(dadosPartida) {
     atributoTurno = dadosPartida['atributoTurno'];
@@ -613,7 +614,6 @@ class _TestePhaseState extends State<Game> {
   void movimentarJogadorNaoTurno(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     var ultimoEstagio = dadosPartida['estadoAnimacaoJogadorTurno'];
-    showMyDialog(jogadorTurno, p1AnimateState, ultimoEstagio);
     if (jogadorPrincipal != jogadorTurno && p1AnimateState != ultimoEstagio) {
       setState(() {
         p1AnimateState = p1UpdateStateNaoTurno(p1AnimateState);
