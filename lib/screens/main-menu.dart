@@ -14,6 +14,7 @@ class _MainMenuState extends State<MainMenu> {
   String playerName, playerPassword, playerEmail, playerId;
   String screenController = 'Home';
 
+  //Metodo que valida se o nome do usuário existe no banco
   Future<bool> usernameValidation() async {
     var db = FirebaseFirestore.instance;
     DocumentSnapshot foundedUser =
@@ -23,6 +24,7 @@ class _MainMenuState extends State<MainMenu> {
         : Future<bool>.value(false);
   }
 
+  //Metodo que registra um novo usuario no banco
   void signInNewUser() async {
     var db = FirebaseFirestore.instance;
     var validNewUser = await usernameValidation();
@@ -52,6 +54,7 @@ class _MainMenuState extends State<MainMenu> {
     }
   }
 
+  // Loga um usuário levando o mesmo para a sala de busca de partidas
   void logInUser() async {
     var db = FirebaseFirestore.instance;
     DocumentSnapshot foundedUser =

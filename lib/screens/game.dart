@@ -9,6 +9,7 @@ import 'package:show_up_animation/show_up_animation.dart';
 
 import '../consts/Cards.dart' as CardsAtributtes;
 
+//Widget de resultado do jogo
 Widget resultado(bool gameWin, BuildContext context) {
   String text;
   MaterialColor cor;
@@ -108,6 +109,7 @@ Widget resultado(bool gameWin, BuildContext context) {
   );
 }
 
+//Widget de carta do jogo
 class Carta extends StatelessWidget {
   int id;
   String nome;
@@ -325,11 +327,13 @@ class Carta extends StatelessWidget {
         ]));
   }
 }
-
+//Classe que cria um estado com a classe principal, mantemos o nome de _TestePhaseState por familiaridade
+//de todos os desenvolvedor do projeto.
 class Game extends StatefulWidget {
   _TestePhaseState createState() => _TestePhaseState();
 }
 
+//classe principal do jogo
 class _TestePhaseState extends State<Game> {
   // variavel "inicio" indica que acabamos de iniciar o jogo
   static bool inicio = true;
@@ -354,7 +358,6 @@ class _TestePhaseState extends State<Game> {
   static int pontuacaoJogador1, pontuacaoJogador2;
   static int idCartaTurnoJogadorTurno, idCartaTurnoJogadorNaoTurno;
   static var atributoTurno;
-  static Carta cartaSorteada;
   static var cartasQueSairamDoDeck;
   static var jogadorPrincipal, gameId;
   static var timeoutTurno, timeoutSugestaoUsuario;
@@ -411,6 +414,8 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
+  //Metodo que atualiza o estado da animação do jogador que está jogando no turno no banco
+  // com o objetivo do listener replicar essa informação para o segundo jogador
   void atualizarEstadoDaAnimacaoNoBanco(String estado) {
     var db = FirebaseFirestore.instance;
     if (jogadorPrincipal == jogadorTurno) {
@@ -421,6 +426,8 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
+  // Atualiza as animações do jogador que não é o responsavel pelo turno, sendo um metodo somente disparado
+  // pelo listener
   String p1UpdateStateNaoTurno(String state) {
     if (state == "draw") {
       state = "zoom";
@@ -438,6 +445,7 @@ class _TestePhaseState extends State<Game> {
     return state;
   }
 
+  // Atualiza as animações do jogador responsavel pelo turno sendo disparado por evento de click
   String p1UpdateState(String state) {
     if (state == "draw") {
       state = "zoom";
@@ -462,6 +470,7 @@ class _TestePhaseState extends State<Game> {
     return state;
   }
 
+  // Atualiza as animações da carta auxiliar na tela
   String p2UpdateState(String state, String p1State) {
     if (state == "deck" && p1State == "draw")
       return "draw";
@@ -494,18 +503,22 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
+// verifica se o jogador principal ou seja o dono do celular é o jogador que está jogando no turno
   static bool jodadorPrincipalEJogadorTurno() {
     return jogadorPrincipal == jogadorTurno;
   }
 
+// verifica se algum atributo foi escolhido nesse turno
   static bool atributoTurnoEscolhido() {
     return atributoTurno != null;
   }
 
+// verifica se  o jogador dono do celular sacou alguma carta
   static bool jogadorPrincipalSacouCarta() {
     return cartaDaVez != null;
   }
 
+// obtem uma string que auxilia o usuario em qual ação tomar
   static String getSugestaoUsuario() {
     if (!jogadorPrincipalSacouCarta())
       return "Saque uma carta!";
@@ -515,11 +528,13 @@ class _TestePhaseState extends State<Game> {
       return "Espere o outro jogador jogar!";
   }
 
+// atualiza a string de sugestao do usuario e renderiza na tela
   void atualizarSugestaoUsuario() {
     String sugestaoUsuario = getSugestaoUsuario();
     setState(() => sugestaoUsuario = "Dica: $sugestaoUsuario");
   }
 
+// inicia uma contagem de tempo maximo de ação que o usuario pode tomar
   static void iniciarTemporizadoresDoJogo() {
     timeoutTurno = Timer(Duration(seconds: 60), () {
       //this.timeoutSugestaoUsuario.cancel();
@@ -527,10 +542,12 @@ class _TestePhaseState extends State<Game> {
     });
   }
 
+// obtem o nome de usuario do jogador q está jogando no celular do adversario
   static String getNomeJogadorAdversario() {
     return jogador1 == jogadorPrincipal ? jogador2 : jogador1;
   }
 
+// funcao desativada durante o desenvolvimento
   // void passarTurno() async {
   //   calcularPontuacaoRodada();
   //   var jogadorAdversario = getNomeJogadorAdversario();
@@ -545,10 +562,13 @@ class _TestePhaseState extends State<Game> {
   //   //cartaDaVez = null;
   // }
 
+// atualiza o atributo escolhido no banco
   static void atualizarAtributoTurno(dadosPartida) {
     atributoTurno = dadosPartida['atributoTurno'];
   }
 
+// atualiza o jogador do turno
+// OBS: Funcao desativada durante desenvolvimento
   void atualizarJogadorTurno(dadosPartida) {
     // setState(() {
     //   // por algum motivo o jogadorTurno não está sendo refletido na variavel
@@ -556,11 +576,13 @@ class _TestePhaseState extends State<Game> {
     // });
   }
 
+  // Atualiza a pontuacao dos 2 jogadores
   static void atualizarPontuacaoJogadores(dadosPartida) {
     pontuacaoJogador1 = dadosPartida['pontuacaoJogador1'];
     pontuacaoJogador2 = dadosPartida['pontuacaoJogador2'];
   }
 
+//Instancia uma nova carta
   static Carta atribuirCarta(int idCarta) {
     int id = CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['id'];
     String nome =
@@ -580,6 +602,7 @@ class _TestePhaseState extends State<Game> {
         id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
   }
 
+  // atualiza no banco os ids de cada carta dos jogadores
   static void atualizarIdsCartasTurnoJogadores(dadosPartida) {
     idCartaTurnoJogadorTurno = dadosPartida['idCartaTurnoJogadorTurno'];
     idCartaTurnoJogadorNaoTurno = dadosPartida['idCartaTurnoJogadorNaoTurno'];
@@ -590,12 +613,12 @@ class _TestePhaseState extends State<Game> {
       cartaDaVezAdversario = atribuirCarta(idCartaTurnoJogadorTurno);
     }
   }
-
+// remove todas as cartas que ja foram jogadas do deck dos jogadores
   static void atualizarCartasNoDeck(dadosDaPartida) {
     var cartasRemovidas = dadosDaPartida['cartasRemovidas'];
     cartasQueSairamDoDeck = cartasRemovidas;
   }
-
+  // disparada pelo listener esse funcao atualiza os estados compartilhados entre os 2 jogadores
   void atualizarAtributos(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     atualizarCartasNoDeck(dadosPartida);
@@ -604,13 +627,14 @@ class _TestePhaseState extends State<Game> {
     atualizarJogadorTurno(dadosPartida);
     atualizarAtributoTurno(dadosPartida);
   }
-
+// verifica se a partida ja foi finalizada e informa se o jogador venceu ou perdeu
   static void verificarSePartidaFinalizada(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     p1Score = dadosPartida['pontuacaoJogador1'];
     p2Score = dadosPartida['pontuacaoJogador2'];
   }
 
+// movimenta as animacoes do jogador que é o responsavel pelo turno
   void movimentarJogadorNaoTurno(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     var ultimoEstagio = dadosPartida['estadoAnimacaoJogadorTurno'];
@@ -641,6 +665,8 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
+// funcao principal do multiplayer, ouve a sala de partida no banco de dados e dispara automaticamente
+// sempre que acontece alguma mudança no banco de dados, atualizando os estados no celular dos 2 jogadores
   Future<void> listenerDoJogo() async {
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(gameId).snapshots().listen((result) {
@@ -651,6 +677,7 @@ class _TestePhaseState extends State<Game> {
     });
   }
 
+  // atualiza a carta sacado no banco
   static void inserirCartaJogadorBD(carta) {
     var atributoBD = jodadorPrincipalEJogadorTurno()
         ? "idCartaTurnoJogadorTurno"
@@ -659,6 +686,7 @@ class _TestePhaseState extends State<Game> {
     db.collection('partidas').doc(gameId).update({atributoBD: carta});
   }
 
+  // atualiza a lista de cartas removidas no banco
   static void atualizarCartasRemovidasBD(cartaRemovida) {
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc(gameId).update({
@@ -666,6 +694,7 @@ class _TestePhaseState extends State<Game> {
     });
   }
 
+  // sorteia uma carta aleatoria para o jogador usar no turno
   static sortearCarta(dynamic cartas) {
     var conjuntoRemovidas = Set.from(cartasQueSairamDoDeck);
     var conjuntoDeck = Set.from(cartas.keys.toList());
@@ -696,6 +725,7 @@ class _TestePhaseState extends State<Game> {
     inserirCartaJogadorBD(cartaSorteadaNum);
   }
 
+  // atualiza no banco de dados o atributo escolhido no turno
   static void escolherAtributoTurno(atributo) {
     if (jogadorPrincipal == jogadorTurno) {
       var db = FirebaseFirestore.instance;
@@ -703,6 +733,7 @@ class _TestePhaseState extends State<Game> {
     }
   }
 
+  // calcula quem venceu a rodada baseado nos atributos das cartas
   static void calcularPontuacaoRodada(String state) {
     if (jogadorPrincipal == jogadorTurno) {
       var cartaJogadorPrincipal =
@@ -743,7 +774,7 @@ class _TestePhaseState extends State<Game> {
     // somar ponto no banco para o jogador que venceu e zerar demais atributos de jogo no banco, como ids e atributo escolhido.
     // passar a vez para o proximo jogador
   }
-
+  // obtem os nomes de usuarios dos jogadores
   Future<List> getJogadoresBD() async {
     var db = FirebaseFirestore.instance;
     DocumentSnapshot partida =
@@ -751,7 +782,7 @@ class _TestePhaseState extends State<Game> {
     var dados = partida.data();
     return [dados['jogador1'], dados['jogador2'], dados['jogadorTurno']];
   }
-
+  // inicializa os estados com os valores do banco e dos arguments enviados pela tela anterior
   Future<void> inicializarAtributos(context) async {
     final arguments = ModalRoute.of(context).settings.arguments as Map;
     jogadorPrincipal = arguments['playerName'];

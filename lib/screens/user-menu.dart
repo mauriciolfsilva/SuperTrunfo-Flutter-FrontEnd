@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:grupoazul20211/route/route.dart' as router;
 
 class UserMenu extends StatelessWidget {
+  //Verifica se existe alguma partida criada aonde o jogador2 esteja vazio, ou seja um usuário esperando outro para começar
   Future<bool> anyGameWaitingToStart() async {
     var db = FirebaseFirestore.instance;
     var foundedGame =
@@ -14,6 +15,7 @@ class UserMenu extends StatelessWidget {
     }
   }
 
+  //Verifica se o jogador irá entrar na sala de algum jogador ou se irá criar uma sala nova
   void startNewGame(String playerName, BuildContext context) async {
     if (await anyGameWaitingToStart()) {
       //achar partida
@@ -24,6 +26,7 @@ class UserMenu extends StatelessWidget {
     }
   }
 
+  // Listener aonde o jogador após criar a sala fica "ouvindo" a sala no banco esperando outro jogador ingressar na sala e manda os 2 jogadores para a partida
   void waitingForPlayer(
       String playerName, String gameId, BuildContext context) {
     var db = FirebaseFirestore.instance;
@@ -36,11 +39,13 @@ class UserMenu extends StatelessWidget {
     });
   }
 
+  // envia os jogadores para a partida
   sendToGame(BuildContext context, String gameId, String playerName) {
     Navigator.pushReplacementNamed(context, router.gamePage,
         arguments: {'gameId': gameId, 'playerName': playerName});
   }
 
+  //Adiciona um segundo jogador a alguma sala vazia
   void signInMatch(String playerName, BuildContext context) async {
     var db = FirebaseFirestore.instance;
     var foundedGame =
@@ -55,6 +60,7 @@ class UserMenu extends StatelessWidget {
     }
   }
 
+  //Cria uma sala vazia com apenas 1 jogador preenchido
   void createNewGame(String playerName, BuildContext context) async {
     var db = FirebaseFirestore.instance;
     db.collection('partidas').doc().set({

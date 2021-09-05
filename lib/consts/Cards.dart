@@ -1,3 +1,4 @@
+// constante que guarda todas as cartas possíveis de serem obtidas no jogo
 const Map properties = const {
   1: const {
     'id': 1,

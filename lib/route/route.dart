@@ -9,7 +9,7 @@ const String userMenuPage = 'UserMenu';
 const String gamePage = 'Game';
 const String testPage = 'Teste';
 
-//Controller
+//Controla as rotas da aplicação
 Route<dynamic> controller(RouteSettings settings) {
   switch (settings.name) {
     case mainMenuPage:
