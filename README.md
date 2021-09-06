@@ -1,4 +1,4 @@
-# Super Trunfo
+# Super Trunfo UFF
 
 ## Resumo
 
