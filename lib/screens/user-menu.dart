@@ -7,9 +7,10 @@ class UserMenu extends StatelessWidget {
   Future<bool> anyGameWaitingToStart(String playerName) async {
     var db = FirebaseFirestore.instance;
 
-    // Inicio da correção do bug onde caso entrasse na fila, depois fechasse o app, depois entrasse de novo. Ia pra partida quebrada
+    // Inicio da correção do bug: caso jogador 1 entra na fila, depois fecha o app, depois entra de novo. Ia entra em partida quebrada contra ele mesmo.
     var foundedBrokenGame =
-    await db.collection('partidas').where('jogador1', isEqualTo: playerName).get();
+    await db.collection('partidas').where('jogador1', isEqualTo: playerName).where('jogador2', isNull: true).get();
+
     if (foundedBrokenGame.docs.length > 0) {
       var gameId = foundedBrokenGame.docs[0].id;
       db.collection('partidas').doc(gameId).update({
@@ -17,6 +18,8 @@ class UserMenu extends StatelessWidget {
       });
     }
     // Fim da correção
+
+    // ainda falta corrigir bug onde jogador 2 cria partida depois fecha game. entao jogador 1 entra em partida vazia.
 
     var foundedGame =
         await db.collection('partidas').where('jogador2', isNull: true).get();
