@@ -27,9 +27,9 @@ Passo-a-passo:
 
 ## Equipe
 
-- Mauricio Leonardo Fernandes Da Silva - 217031115
-- Matheus Ribeiro Aragão - 619031157
+- [Mauricio Leonardo Fernandes Da Silva](https://github.com/mauriciolfsilva) - 217031115
+- [Matheus Ribeiro Aragão](https://github.com/MatheusAragao1) - 619031157
 - [Henrique De Morais Porto](https://github.com/henriporto) - 020031157 
-- Victor Faria Fernandes - 217031107 
-- João Pedro López da Cruz - 118031062 
-- Pedro Cassa Dias - 219031119
+- [Victor Faria Fernandes](https://github.com/) - 217031107 
+- [João Pedro López da Cruz](https://github.com/JoaoLopez) - 118031062 
+- [Pedro Cassa Dias](https://github.com/pedrocassa) - 219031119
