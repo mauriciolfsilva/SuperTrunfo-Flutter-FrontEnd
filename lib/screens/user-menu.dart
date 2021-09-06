@@ -4,8 +4,20 @@ import 'package:grupoazul20211/route/route.dart' as router;
 
 class UserMenu extends StatelessWidget {
   //Verifica se existe alguma partida criada aonde o jogador2 esteja vazio, ou seja um usuário esperando outro para começar
-  Future<bool> anyGameWaitingToStart() async {
+  Future<bool> anyGameWaitingToStart(String playerName) async {
     var db = FirebaseFirestore.instance;
+
+    // Inicio da correção do bug onde caso entrasse na fila, depois fechasse o app, depois entrasse de novo. Ia pra partida quebrada
+    var foundedBrokenGame =
+    await db.collection('partidas').where('jogador1', isEqualTo: playerName).get();
+    if (foundedBrokenGame.docs.length > 0) {
+      var gameId = foundedBrokenGame.docs[0].id;
+      db.collection('partidas').doc(gameId).update({
+        "jogador2": 'LIXO',
+      });
+    }
+    // Fim da correção
+
     var foundedGame =
         await db.collection('partidas').where('jogador2', isNull: true).get();
     if (foundedGame.docs.length > 0) {
@@ -17,7 +29,7 @@ class UserMenu extends StatelessWidget {
 
   //Verifica se o jogador irá entrar na sala de algum jogador ou se irá criar uma sala nova
   void startNewGame(String playerName, BuildContext context) async {
-    if (await anyGameWaitingToStart()) {
+    if (await anyGameWaitingToStart(playerName)) {
       //achar partida
       signInMatch(playerName, context);
     } else {
@@ -59,6 +71,7 @@ class UserMenu extends StatelessWidget {
       sendToGame(context, gameId, playerName);
     }
   }
+
 
   //Cria uma sala vazia com apenas 1 jogador preenchido
   void createNewGame(String playerName, BuildContext context) async {
