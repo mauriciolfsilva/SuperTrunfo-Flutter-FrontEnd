@@ -23,7 +23,6 @@ O código do app foi escrito em dart com o framework flutter, usamos os widgets 
 
 ## Instalação
 ........
-Passo-a-passo:
 
 ## Equipe IC/UFF
 
