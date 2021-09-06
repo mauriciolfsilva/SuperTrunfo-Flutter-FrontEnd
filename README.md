@@ -25,11 +25,11 @@ O código do app foi escrito em dart com o framework flutter, usamos os widgets 
 ........
 Passo-a-passo:
 
-## Equipe
+## Equipe IC/UFF
 
-- [Mauricio Leonardo Fernandes Da Silva](https://github.com/mauriciolfsilva) - 217031115
-- [Matheus Ribeiro Aragão](https://github.com/MatheusAragao1) - 619031157
-- [Henrique De Morais Porto](https://github.com/henriporto) - 020031157 
-- [Victor Faria Fernandes](https://github.com/) - 217031107 
-- [João Pedro López da Cruz](https://github.com/JoaoLopez) - 118031062 
-- [Pedro Cassa Dias](https://github.com/pedrocassa) - 219031119
+- [Mauricio Leonardo Fernandes Da Silva](https://github.com/mauriciolfsilva)
+- [Matheus Ribeiro Aragão](https://github.com/MatheusAragao1) 
+- [Henrique De Morais Porto](https://github.com/henriporto)
+- [Victor Faria Fernandes](https://github.com/) 
+- [João Pedro López da Cruz](https://github.com/JoaoLopez)
+- [Pedro Cassa Dias](https://github.com/pedrocassa)
