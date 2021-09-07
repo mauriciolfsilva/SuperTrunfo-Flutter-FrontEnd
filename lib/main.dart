@@ -2,6 +2,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:grupoazul20211/route/route.dart' as router;
 
+/*
+ * Descricao do modulo:
+ * Widget raiz do aplicativo que tem como rota inicial o MainMenu.
+ *
+ * Github:
+ * https://github.com/mauriciolfsilva/SuperTrunfo-Flutter-FrontEnd
+ */
+
 // Inicia o app como um todo
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

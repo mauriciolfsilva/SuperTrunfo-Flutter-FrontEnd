@@ -2,6 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grupoazul20211/route/route.dart' as router;
 
+/*
+ * Descricao do modulo:
+ * Carrega os métodos e dados necessários para iniciar uma partida.
+ *
+ * Github:
+ * https://github.com/mauriciolfsilva/SuperTrunfo-Flutter-FrontEnd
+ */
+
+
 class UserMenu extends StatelessWidget {
   //Verifica se existe alguma partida criada aonde o jogador2 esteja vazio, ou seja um usuário esperando outro para começar
   Future<bool> anyGameWaitingToStart(String playerName) async {

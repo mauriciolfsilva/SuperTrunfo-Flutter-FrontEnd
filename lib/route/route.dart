@@ -3,6 +3,15 @@ import 'package:grupoazul20211/screens/game.dart';
 import 'package:grupoazul20211/screens/main-menu.dart';
 import 'package:grupoazul20211/screens/user-menu.dart';
 
+/*
+ * Descricao do modulo:
+ * Esse arquivo implementa o método controller que retorna cada rota (tela a ser exibida) do aplicativo.
+ *
+ * Github:
+ * https://github.com/mauriciolfsilva/SuperTrunfo-Flutter-FrontEnd
+ */
+
+
 //Route Names
 const String mainMenuPage = 'Home';
 const String userMenuPage = 'UserMenu';

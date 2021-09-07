@@ -2,6 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grupoazul20211/route/route.dart' as router;
 
+/*
+ * Descricao do modulo:
+ * Carrega os métodos e dados necessários para o processo de login e cadastro de usuário.
+ *
+ * Github:
+ * https://github.com/mauriciolfsilva/SuperTrunfo-Flutter-FrontEnd
+ */
+
+
 //classe que extende estados que serão usados para manipular as informações
 //na tela.
 class MainMenu extends StatefulWidget {
