@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
-import 'package:grupoazul20211/screens/main-menu.dart';
+import 'package:flutter/services.dart';
 import 'package:show_up_animation/show_up_animation.dart';
 
 import '../consts/Cards.dart' as CardsAtributtes;
@@ -83,14 +83,14 @@ Widget resultado(bool gameWin, BuildContext context) {
                       width: 200,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => MainMenu()));
+                          SystemChannels.platform
+                              .invokeMethod<void>('SystemNavigator.pop');
                         },
                         style: ElevatedButton.styleFrom(
                           primary: Colors.pink,
                         ),
                         child: Text(
-                          'Jogar novamente',
+                          'Sair do jogo',
                           style: new TextStyle(
                             fontSize: 20.0,
                             fontFamily: 'Montserrat',
@@ -327,6 +327,7 @@ class Carta extends StatelessWidget {
         ]));
   }
 }
+
 //Classe que cria um estado com a classe principal, mantemos o nome de _TestePhaseState por familiaridade
 //de todos os desenvolvedor do projeto.
 class Game extends StatefulWidget {
@@ -563,8 +564,10 @@ class _TestePhaseState extends State<Game> {
   // }
 
 // atualiza o atributo escolhido no banco
-  static void atualizarAtributoTurno(dadosPartida) {
-    atributoTurno = dadosPartida['atributoTurno'];
+  void atualizarAtributoTurno(dadosPartida) {
+    setState(() {
+      atributoTurno = dadosPartida['atributoTurno'];
+    });
   }
 
 // atualiza o jogador do turno
@@ -584,40 +587,37 @@ class _TestePhaseState extends State<Game> {
 
 //Instancia uma nova carta
   static Carta atribuirCarta(int idCarta) {
-    int id = CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['id'];
-    String nome =
-        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['nome'];
-    double densidade =
-        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['densidade'];
-    double raio =
-        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['raio'];
-    double fusao =
-        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['fusao'];
-    double energia =
-        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['energia'];
-    double negatividade =
-        CardsAtributtes.properties[idCartaTurnoJogadorNaoTurno]['negatividade'];
+    int id = CardsAtributtes.properties[idCarta]['id'];
+    String nome = CardsAtributtes.properties[idCarta]['nome'];
+    double densidade = CardsAtributtes.properties[idCarta]['densidade'];
+    double raio = CardsAtributtes.properties[idCarta]['raio'];
+    double fusao = CardsAtributtes.properties[idCarta]['fusao'];
+    double energia = CardsAtributtes.properties[idCarta]['energia'];
+    double negatividade = CardsAtributtes.properties[idCarta]['negatividade'];
 
     return new Carta(
         id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
   }
 
   // atualiza no banco os ids de cada carta dos jogadores
-  static void atualizarIdsCartasTurnoJogadores(dadosPartida) {
+  void atualizarIdsCartasTurnoJogadores(dadosPartida) {
     idCartaTurnoJogadorTurno = dadosPartida['idCartaTurnoJogadorTurno'];
     idCartaTurnoJogadorNaoTurno = dadosPartida['idCartaTurnoJogadorNaoTurno'];
-
-    if (jogadorPrincipal == jogadorTurno && cartaDaVez != null) {
-      cartaDaVezAdversario = atribuirCarta(idCartaTurnoJogadorNaoTurno);
-    } else if (jogadorPrincipal != jogadorTurno && cartaDaVez != null) {
-      cartaDaVezAdversario = atribuirCarta(idCartaTurnoJogadorTurno);
-    }
+    setState(() {
+      if (jogadorPrincipal == jogadorTurno && cartaDaVez != null) {
+        cartaDaVezAdversario = atribuirCarta(idCartaTurnoJogadorNaoTurno);
+      } else if (jogadorPrincipal != jogadorTurno && cartaDaVez != null) {
+        cartaDaVezAdversario = atribuirCarta(idCartaTurnoJogadorTurno);
+      }
+    });
   }
+
 // remove todas as cartas que ja foram jogadas do deck dos jogadores
   static void atualizarCartasNoDeck(dadosDaPartida) {
     var cartasRemovidas = dadosDaPartida['cartasRemovidas'];
     cartasQueSairamDoDeck = cartasRemovidas;
   }
+
   // disparada pelo listener esse funcao atualiza os estados compartilhados entre os 2 jogadores
   void atualizarAtributos(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
@@ -627,14 +627,29 @@ class _TestePhaseState extends State<Game> {
     atualizarJogadorTurno(dadosPartida);
     atualizarAtributoTurno(dadosPartida);
   }
+
 // verifica se a partida ja foi finalizada e informa se o jogador venceu ou perdeu
-  static void verificarSePartidaFinalizada(DocumentSnapshot partida) {
+  void verificarSePartidaFinalizada(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     p1Score = dadosPartida['pontuacaoJogador1'];
     p2Score = dadosPartida['pontuacaoJogador2'];
+
+    var jogadorCel = jogadorPrincipal == jogador1;
+
+    if ((p1Score >= 7 && jogadorCel) || (p2Score >= 7 && !jogadorCel)) {
+      setState(() {
+        gameFinish = true;
+        gameWin = true;
+      });
+    } else if ((p1Score >= 7 && !jogadorCel) || (p2Score >= 7 && jogadorCel)) {
+      setState(() {
+        gameFinish = true;
+        gameWin = false;
+      });
+    }
   }
 
-// movimenta as animacoes do jogador que é o responsavel pelo turno
+// movimenta as animacoes do jogador que não é o responsavel pelo turno
   void movimentarJogadorNaoTurno(DocumentSnapshot partida) {
     var dadosPartida = partida.data();
     var ultimoEstagio = dadosPartida['estadoAnimacaoJogadorTurno'];
@@ -647,12 +662,12 @@ class _TestePhaseState extends State<Game> {
           case "showCards":
             if (naoVirou) {
               cardKey.currentState.toggleCard();
-              cardKey1.currentState.toggleCard();
               naoVirou = false;
             }
             break;
           case "deck":
             cardKey.currentState.toggleCard();
+            cardKey1.currentState.toggleCard();
             naoVirou = true;
             break;
           case "draw":
@@ -774,6 +789,7 @@ class _TestePhaseState extends State<Game> {
     // somar ponto no banco para o jogador que venceu e zerar demais atributos de jogo no banco, como ids e atributo escolhido.
     // passar a vez para o proximo jogador
   }
+
   // obtem os nomes de usuarios dos jogadores
   Future<List> getJogadoresBD() async {
     var db = FirebaseFirestore.instance;
@@ -782,6 +798,7 @@ class _TestePhaseState extends State<Game> {
     var dados = partida.data();
     return [dados['jogador1'], dados['jogador2'], dados['jogadorTurno']];
   }
+
   // inicializa os estados com os valores do banco e dos arguments enviados pela tela anterior
   Future<void> inicializarAtributos(context) async {
     final arguments = ModalRoute.of(context).settings.arguments as Map;
