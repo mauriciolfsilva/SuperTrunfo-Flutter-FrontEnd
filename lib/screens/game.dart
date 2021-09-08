@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:show_up_animation/show_up_animation.dart';
+
 import '../consts/Cards.dart' as CardsAtributtes;
 
 /*
@@ -17,7 +19,6 @@ import '../consts/Cards.dart' as CardsAtributtes;
  * Github:
  * https://github.com/mauriciolfsilva/SuperTrunfo-Flutter-FrontEnd
  */
-
 
 //Widget de resultado do jogo
 Widget resultado(bool gameWin, BuildContext context) {
@@ -189,7 +190,7 @@ class Carta extends State<CartaWidget> {
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
                           color: _TestePhaseState.atributoTurno == "densidade"
-                              ? Colors.orange
+                              ? Colors.yellow
                               : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
@@ -234,7 +235,9 @@ class Carta extends State<CartaWidget> {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: _TestePhaseState.atributoTurno == "raio"
+                              ? Colors.yellow
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
                           minWidth: double.infinity,
@@ -277,7 +280,9 @@ class Carta extends State<CartaWidget> {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: _TestePhaseState.atributoTurno == "fusao"
+                              ? Colors.yellow
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
                           minWidth: double.infinity,
@@ -316,7 +321,9 @@ class Carta extends State<CartaWidget> {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: _TestePhaseState.atributoTurno == "energia"
+                              ? Colors.yellow
+                              : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
                           minWidth: double.infinity,
@@ -577,35 +584,11 @@ class _TestePhaseState extends State<Game> {
     return jogador1 == jogadorPrincipal ? jogador2 : jogador1;
   }
 
-// funcao desativada durante o desenvolvimento
-  // void passarTurno() async {
-  //   calcularPontuacaoRodada();
-  //   var jogadorAdversario = getNomeJogadorAdversario();
-  //   var db = FirebaseFirestore.instance;
-  //   db.collection('partidas').doc(gameId).update({
-  //     "idCartaTurnoJogadorNaoTurno": null,
-  //     "idCartaTurnoJogadorTurno": null,
-  //     "atributoTurno": null,
-  //     //"jogadorTurno": jogadorAdversario,
-  //     //"estadoAnimacaoJogadorTurno": "deck",
-  //   });
-  //   //cartaDaVez = null;
-  // }
-
 // atualiza o atributo escolhido no banco
   void atualizarAtributoTurno(dadosPartida) {
     setState(() {
       atributoTurno = dadosPartida['atributoTurno'];
     });
-  }
-
-// atualiza o jogador do turno
-// OBS: Funcao desativada durante desenvolvimento
-  void atualizarJogadorTurno(dadosPartida) {
-    // setState(() {
-    //   // por algum motivo o jogadorTurno não está sendo refletido na variavel
-    //   //jogadorTurno = dadosPartida['jogadorTurno'];
-    // });
   }
 
   // Atualiza a pontuacao dos 2 jogadores
@@ -653,7 +636,6 @@ class _TestePhaseState extends State<Game> {
     atualizarCartasNoDeck(dadosPartida);
     atualizarIdsCartasTurnoJogadores(dadosPartida);
     atualizarPontuacaoJogadores(dadosPartida);
-    atualizarJogadorTurno(dadosPartida);
     atualizarAtributoTurno(dadosPartida);
   }
 
