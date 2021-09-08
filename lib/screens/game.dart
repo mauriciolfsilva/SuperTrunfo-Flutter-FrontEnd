@@ -1,13 +1,23 @@
 import 'dart:async';
 import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:show_up_animation/show_up_animation.dart';
-
 import '../consts/Cards.dart' as CardsAtributtes;
+
+/*
+ * Descricao do modulo:
+ * Carrega os métodos e dados necessários para a parte jogável do aplicativo.
+ * Entre elas:
+ *      Widgets visual para a carta e sua movimentação.
+ *      Métodos para as funcionalidades da parte jogável.
+ *
+ * Github:
+ * https://github.com/mauriciolfsilva/SuperTrunfo-Flutter-FrontEnd
+ */
+
 
 //Widget de resultado do jogo
 Widget resultado(bool gameWin, BuildContext context) {
