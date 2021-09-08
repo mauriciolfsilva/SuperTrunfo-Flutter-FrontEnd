@@ -174,9 +174,7 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: _Gameplay.atributoTurno == "densidade"
-                              ? Colors.orange
-                              : Colors.white,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
                           minWidth: double.infinity,
