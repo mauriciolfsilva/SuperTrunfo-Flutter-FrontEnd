@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:show_up_animation/show_up_animation.dart';
+
 import '../consts/Cards.dart' as CardsAtributtes;
 
 /*
@@ -17,7 +19,6 @@ import '../consts/Cards.dart' as CardsAtributtes;
  * Github:
  * https://github.com/mauriciolfsilva/SuperTrunfo-Flutter-FrontEnd
  */
-
 
 //Widget de resultado do jogo
 Widget resultado(bool gameWin, BuildContext context) {
@@ -173,7 +174,7 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: _TestePhaseState.atributoTurno == "densidade"
+                          color: _Gameplay.atributoTurno == "densidade"
                               ? Colors.orange
                               : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
@@ -187,14 +188,13 @@ class Carta extends StatelessWidget {
                                 onSurface: Colors.transparent,
                               ),
                               onPressed: () => {
-                                    if (_TestePhaseState.jogadorPrincipal ==
-                                            _TestePhaseState.jogadorTurno &&
-                                        (_TestePhaseState.p1AnimateState ==
+                                    if (_Gameplay.jogadorPrincipal ==
+                                            _Gameplay.jogadorTurno &&
+                                        (_Gameplay.p1AnimateState ==
                                                 "display" ||
-                                            _TestePhaseState.p1AnimateState ==
-                                                "zoom"))
+                                            _Gameplay.p1AnimateState == "zoom"))
                                       {
-                                        _TestePhaseState.escolherAtributoTurno(
+                                        _Gameplay.escolherAtributoTurno(
                                             "densidade"),
                                       }
                                   },
@@ -228,15 +228,13 @@ class Carta extends StatelessWidget {
                                 onSurface: Colors.transparent,
                               ),
                               onPressed: () => {
-                                    if (_TestePhaseState.jogadorPrincipal ==
-                                            _TestePhaseState.jogadorTurno &&
-                                        (_TestePhaseState.p1AnimateState ==
+                                    if (_Gameplay.jogadorPrincipal ==
+                                            _Gameplay.jogadorTurno &&
+                                        (_Gameplay.p1AnimateState ==
                                                 "display" ||
-                                            _TestePhaseState.p1AnimateState ==
-                                                "zoom"))
+                                            _Gameplay.p1AnimateState == "zoom"))
                                       {
-                                        _TestePhaseState.escolherAtributoTurno(
-                                            "raio"),
+                                        _Gameplay.escolherAtributoTurno("raio"),
                                       }
                                   },
                               child: Row(children: <Widget>[
@@ -264,14 +262,13 @@ class Carta extends StatelessWidget {
                           height: 30,
                           child: TextButton(
                               onPressed: () => {
-                                    if (_TestePhaseState.jogadorPrincipal ==
-                                            _TestePhaseState.jogadorTurno &&
-                                        (_TestePhaseState.p1AnimateState ==
+                                    if (_Gameplay.jogadorPrincipal ==
+                                            _Gameplay.jogadorTurno &&
+                                        (_Gameplay.p1AnimateState ==
                                                 "display" ||
-                                            _TestePhaseState.p1AnimateState ==
-                                                "zoom"))
+                                            _Gameplay.p1AnimateState == "zoom"))
                                       {
-                                        _TestePhaseState.escolherAtributoTurno(
+                                        _Gameplay.escolherAtributoTurno(
                                             "fusao"),
                                       }
                                   },
@@ -301,14 +298,13 @@ class Carta extends StatelessWidget {
                           height: 30,
                           child: TextButton(
                               onPressed: () => {
-                                    if (_TestePhaseState.jogadorPrincipal ==
-                                            _TestePhaseState.jogadorTurno &&
-                                        (_TestePhaseState.p1AnimateState ==
+                                    if (_Gameplay.jogadorPrincipal ==
+                                            _Gameplay.jogadorTurno &&
+                                        (_Gameplay.p1AnimateState ==
                                                 "display" ||
-                                            _TestePhaseState.p1AnimateState ==
-                                                "zoom"))
+                                            _Gameplay.p1AnimateState == "zoom"))
                                       {
-                                        _TestePhaseState.escolherAtributoTurno(
+                                        _Gameplay.escolherAtributoTurno(
                                             "energia"),
                                       }
                                   },
@@ -332,14 +328,14 @@ class Carta extends StatelessWidget {
   }
 }
 
-//Classe que cria um estado com a classe principal, mantemos o nome de _TestePhaseState por familiaridade
+//Classe que cria um estado com a classe principal, mantemos o nome de _Gameplay por familiaridade
 //de todos os desenvolvedor do projeto.
 class Game extends StatefulWidget {
-  _TestePhaseState createState() => _TestePhaseState();
+  _Gameplay createState() => _Gameplay();
 }
 
 //classe principal do jogo
-class _TestePhaseState extends State<Game> {
+class _Gameplay extends State<Game> {
   // variavel "inicio" indica que acabamos de iniciar o jogo
   static bool inicio = true;
 
@@ -1004,7 +1000,7 @@ class _TestePhaseState extends State<Game> {
 
 class TestePhase extends StatefulWidget {
   @override
-  _TestePhaseState createState() => _TestePhaseState();
+  _Gameplay createState() => _Gameplay();
 }
 
 void mostraWidgetPorUmTempo({@required BuildContext context, Widget widget}) {
@@ -1030,7 +1026,7 @@ Widget vsText() {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              '${_TestePhaseState.jogador1}   ', //${this.nome} ?
+              '${_Gameplay.jogador1}   ', //${this.nome} ?
               style: TextStyle(
                 fontFamily: 'Pacifico',
                 fontSize: 20.0,
@@ -1045,7 +1041,7 @@ Widget vsText() {
               //fit: BoxFit.fill,
             ),
             Text(
-              '   ${_TestePhaseState.jogador2}', //${this.nome} ?
+              '   ${_Gameplay.jogador2}', //${this.nome} ?
               style: TextStyle(
                 fontFamily: 'Pacifico',
                 fontSize: 20.0,
