@@ -109,8 +109,23 @@ Widget resultado(bool gameWin, BuildContext context) {
   );
 }
 
+class CartaWidget extends StatefulWidget {
+  int id;
+  String nome;
+  double densidade;
+  double raio;
+  double fusao;
+  double energia;
+  double negatividade;
+  double abundancia;
+  CartaWidget(this.id, this.nome, this.densidade, this.raio, this.fusao,
+      this.energia, this.negatividade, this.abundancia);
+  Carta createState() => Carta(this.id, this.nome, this.densidade, this.raio,
+      this.fusao, this.energia, this.negatividade, this.abundancia);
+}
+
 //Widget de carta do jogo
-class Carta extends StatelessWidget {
+class Carta extends State<CartaWidget> {
   int id;
   String nome;
   double densidade;
@@ -164,7 +179,7 @@ class Carta extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
                           color: _TestePhaseState.atributoTurno == "densidade"
-                              ? Colors.yellow
+                              ? Colors.orange
                               : Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
@@ -176,18 +191,21 @@ class Carta extends StatelessWidget {
                                 shadowColor: Colors.transparent,
                                 onSurface: Colors.transparent,
                               ),
-                              onPressed: () => {
-                                    if (_TestePhaseState.jogadorPrincipal ==
-                                            _TestePhaseState.jogadorTurno &&
-                                        (_TestePhaseState.p1AnimateState ==
-                                                "display" ||
-                                            _TestePhaseState.p1AnimateState ==
-                                                "zoom"))
-                                      {
-                                        _TestePhaseState.escolherAtributoTurno(
-                                            "densidade"),
-                                      }
-                                  },
+                              onPressed: () {
+                                setState(() {
+                                  if (_TestePhaseState.jogadorPrincipal ==
+                                          _TestePhaseState.jogadorTurno &&
+                                      (_TestePhaseState.p1AnimateState ==
+                                              "display" ||
+                                          _TestePhaseState.p1AnimateState ==
+                                              "zoom")) {
+                                    _TestePhaseState.escolherAtributoTurno(
+                                        "densidade");
+                                    _TestePhaseState.atributoTurno =
+                                        "densidade";
+                                  }
+                                });
+                              },
                               child: Row(children: <Widget>[
                                 Icon(Icons.star, color: Colors.blue, size: 20),
                                 Container(
@@ -206,9 +224,7 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: _TestePhaseState.atributoTurno == "raio"
-                              ? Colors.yellow
-                              : Colors.white,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
                           minWidth: double.infinity,
@@ -219,18 +235,20 @@ class Carta extends StatelessWidget {
                                 shadowColor: Colors.transparent,
                                 onSurface: Colors.transparent,
                               ),
-                              onPressed: () => {
-                                    if (_TestePhaseState.jogadorPrincipal ==
-                                            _TestePhaseState.jogadorTurno &&
-                                        (_TestePhaseState.p1AnimateState ==
-                                                "display" ||
-                                            _TestePhaseState.p1AnimateState ==
-                                                "zoom"))
-                                      {
-                                        _TestePhaseState.escolherAtributoTurno(
-                                            "raio"),
-                                      }
-                                  },
+                              onPressed: () {
+                                setState(() {
+                                  if (_TestePhaseState.jogadorPrincipal ==
+                                          _TestePhaseState.jogadorTurno &&
+                                      (_TestePhaseState.p1AnimateState ==
+                                              "display" ||
+                                          _TestePhaseState.p1AnimateState ==
+                                              "zoom")) {
+                                    _TestePhaseState.escolherAtributoTurno(
+                                        "raio");
+                                    _TestePhaseState.atributoTurno = "raio";
+                                  }
+                                });
+                              },
                               child: Row(children: <Widget>[
                                 Icon(Icons.star, color: Colors.green, size: 20),
                                 Container(
@@ -249,26 +267,26 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: _TestePhaseState.atributoTurno == "fusao"
-                              ? Colors.yellow
-                              : Colors.white,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
                           minWidth: double.infinity,
                           height: 30,
                           child: TextButton(
-                              onPressed: () => {
-                                    if (_TestePhaseState.jogadorPrincipal ==
-                                            _TestePhaseState.jogadorTurno &&
-                                        (_TestePhaseState.p1AnimateState ==
-                                                "display" ||
-                                            _TestePhaseState.p1AnimateState ==
-                                                "zoom"))
-                                      {
-                                        _TestePhaseState.escolherAtributoTurno(
-                                            "fusao"),
-                                      }
-                                  },
+                              onPressed: () {
+                                setState(() {
+                                  if (_TestePhaseState.jogadorPrincipal ==
+                                          _TestePhaseState.jogadorTurno &&
+                                      (_TestePhaseState.p1AnimateState ==
+                                              "display" ||
+                                          _TestePhaseState.p1AnimateState ==
+                                              "zoom")) {
+                                    _TestePhaseState.escolherAtributoTurno(
+                                        "fusao");
+                                    _TestePhaseState.atributoTurno = "fusao";
+                                  }
+                                });
+                              },
                               child: Row(children: <Widget>[
                                 Icon(Icons.star,
                                     color: Colors.teal.shade900, size: 20),
@@ -288,26 +306,27 @@ class Carta extends StatelessWidget {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       decoration: BoxDecoration(
-                          color: _TestePhaseState.atributoTurno == "energia"
-                              ? Colors.yellow
-                              : Colors.white,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(5)),
                       child: ButtonTheme(
                           minWidth: double.infinity,
                           height: 30,
                           child: TextButton(
-                              onPressed: () => {
-                                    if (_TestePhaseState.jogadorPrincipal ==
-                                            _TestePhaseState.jogadorTurno &&
-                                        (_TestePhaseState.p1AnimateState ==
-                                                "display" ||
-                                            _TestePhaseState.p1AnimateState ==
-                                                "zoom"))
-                                      {
-                                        _TestePhaseState.escolherAtributoTurno(
-                                            "energia"),
-                                      }
-                                  },
+                              onPressed: () {
+                                setState(() {
+                                  if (_TestePhaseState.jogadorPrincipal ==
+                                          _TestePhaseState.jogadorTurno &&
+                                      (_TestePhaseState.p1AnimateState ==
+                                              "display" ||
+                                          _TestePhaseState.p1AnimateState ==
+                                              "zoom")) {
+                                    _TestePhaseState.escolherAtributoTurno(
+                                        "energia");
+
+                                    _TestePhaseState.atributoTurno = "energia";
+                                  }
+                                });
+                              },
                               child: Row(children: <Widget>[
                                 Icon(Icons.star,
                                     color: Colors.teal.shade900, size: 20),
@@ -366,8 +385,8 @@ class _TestePhaseState extends State<Game> {
   static bool firstLoad = false;
   static String estadoAnimacaoDoAdversario;
 
-  static Carta cartaDaVez;
-  static Carta cartaDaVezAdversario;
+  static CartaWidget cartaDaVez;
+  static CartaWidget cartaDaVezAdversario;
 
   static double animateWidth(String state) {
     if (state == 'zoom')
@@ -586,7 +605,7 @@ class _TestePhaseState extends State<Game> {
   }
 
 //Instancia uma nova carta
-  static Carta atribuirCarta(int idCarta) {
+  static CartaWidget atribuirCarta(int idCarta) {
     int id = CardsAtributtes.properties[idCarta]['id'];
     String nome = CardsAtributtes.properties[idCarta]['nome'];
     double densidade = CardsAtributtes.properties[idCarta]['densidade'];
@@ -595,7 +614,7 @@ class _TestePhaseState extends State<Game> {
     double energia = CardsAtributtes.properties[idCarta]['energia'];
     double negatividade = CardsAtributtes.properties[idCarta]['negatividade'];
 
-    return new Carta(
+    return new CartaWidget(
         id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
   }
 
@@ -733,8 +752,8 @@ class _TestePhaseState extends State<Game> {
     double negatividade =
         CardsAtributtes.properties[cartaSorteadaNum]['negatividade'];
 
-    cartaDaVez =
-        new Carta(id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
+    cartaDaVez = new CartaWidget(
+        id, nome, densidade, raio, fusao, energia, negatividade, 0.0);
 
     atualizarCartasRemovidasBD(cartaSorteadaNum);
     inserirCartaJogadorBD(cartaSorteadaNum);
